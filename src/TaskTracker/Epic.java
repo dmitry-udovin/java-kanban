@@ -1,9 +1,17 @@
 package TaskTracker;
 
+import java.util.HashMap;
+
 public class Epic extends TaskTracker.Task {
 
-    public Epic(String taskName, String taskDescription) {
-        super(taskName, taskDescription);
+    static HashMap<Integer, String> epicHashMap = new HashMap<>();
+
+    public Epic(String epicTaskName, String epicTaskDescription) {
+        super(epicTaskName, epicTaskDescription);
+
+        int epicID = Task.getTaskID();
+
+        epicHashMap.put(epicID, epicTaskName);
     }
 
 }
