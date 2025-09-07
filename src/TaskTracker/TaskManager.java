@@ -9,6 +9,9 @@ import static TaskTracker.Subtask.subtaskHashMap;
 
 public class TaskManager extends TaskTracker.Task {
 
+    ArrayList<Set<Integer>> taskKeys = new ArrayList<>();
+    ArrayList<Set<Integer>> subtaskKeys = new ArrayList<>();
+    ArrayList<Set<Integer>> epicKeys = new ArrayList<>();
 
     public TaskManager(String taskName, String taskDescription) {
         super(taskName, taskDescription);
@@ -19,7 +22,6 @@ public class TaskManager extends TaskTracker.Task {
 
     public void getTaskList() {
 
-        ArrayList<Set<Integer>> taskKeys = new ArrayList<>();
         taskKeys.add(taskHashMap.keySet());
         System.out.println("Вывод списка задач заданного типа: ");
         for (Set<Integer> key : taskKeys) {
@@ -30,7 +32,6 @@ public class TaskManager extends TaskTracker.Task {
 
     public void getSubtaskList() {
 
-        ArrayList<Set<Integer>> subtaskKeys = new ArrayList<>();
         subtaskKeys.add(subtaskHashMap.keySet());
         System.out.println("Вывод списка задач заданного типа: ");
         for (Set<Integer> key : subtaskKeys) {
@@ -42,7 +43,6 @@ public class TaskManager extends TaskTracker.Task {
     public void getEpicList() {
 
 
-        ArrayList<Set<Integer>> epicKeys = new ArrayList<>();
         epicKeys.add(epicHashMap.keySet());
         System.out.println("Вывод списка задач заданного типа: ");
         for (Set<Integer> key : epicKeys) {
@@ -51,7 +51,45 @@ public class TaskManager extends TaskTracker.Task {
 
     }
 
-    // УДАЛЕНИЕ ВСЕХ ЗАДАЧ
+    // УДАЛЕНИЕ ВСЕХ ЗАДАЧ:
+
+    public void removeAllTasks() {
+       taskKeys.add(taskHashMap.keySet());
+        for (Set<Integer> key : taskKeys) {
+            taskHashMap.remove(key);
+        }
+    }
+
+    public void removeAllSubtasks() {
+        subtaskKeys.add(subtaskHashMap.keySet());
+        for (Set<Integer> key : subtaskKeys) {
+            subtaskHashMap.remove(key);
+        }
+    }
+
+    public void removeAllEpicTasks() {
+        epicKeys.add(epicHashMap.keySet());
+        for (Set<Integer> key : epicKeys) {
+            epicHashMap.remove(key);
+        }
+    }
+
+    // ПОЛУЧЕНИЕ ЗАДАЧИ ПО ИДЕНТИФИКАТОРУ:
+
+    public String getTaskWithID(int taskID) {
+        return taskHashMap.get(taskID);
+    }
+
+    public String getSubtaskWithID(int subtaskID) {
+        return taskHashMap.get(subtaskID);
+    }
+
+    public String getEpictaskWithID(int epictaskID) {
+        return taskHashMap.get(epictaskID);
+    }
+
+    // СОЗДАНИЕ НОВОЙ ЗАДАЧИ:
+
 
 
 }
