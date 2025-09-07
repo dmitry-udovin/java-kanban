@@ -8,7 +8,17 @@ public class Task {
 
     private String taskName;
     private String taskDescription;
+    private Status status;
     public int taskNumber;
+
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
 
     public static int getTaskID() {
         return taskID;
@@ -18,12 +28,12 @@ public class Task {
 
     static HashMap<Integer, Task> taskHashMap = new HashMap<>();
 
-    public Task(String taskName, String taskDescription, int taskNumber) {
+    public Task(String taskName, String taskDescription, int taskNumber, Status status) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
         this.taskNumber = taskNumber;
+        this.status = status;
         taskID++;
-     //   saveNewTask();
     }
 
 
@@ -53,12 +63,6 @@ public class Task {
 
     }
 
-
-//    public void saveNewTask() {
-//        if (this.getClass() == Task.class) {
-//            taskHashMap.put(taskID, taskName);
-//        }
-//    }
 
     public enum Status {
         NEW,

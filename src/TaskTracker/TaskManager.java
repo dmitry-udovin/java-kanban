@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import static TaskTracker.Epic.epicHashMap;
+import static TaskTracker.Epic.idEpicHashMap;
 import static TaskTracker.Subtask.subtaskHashMap;
 
 public class TaskManager extends TaskTracker.Task {
@@ -13,8 +14,8 @@ public class TaskManager extends TaskTracker.Task {
     ArrayList<Set<Integer>> subtaskKeys = new ArrayList<>();
     ArrayList<Set<Integer>> epicKeys = new ArrayList<>();
 
-    public TaskManager(String taskName, String taskDescription, int taskNumber) {
-        super(taskName, taskDescription, taskNumber);
+    public TaskManager(String taskName, String taskDescription, int taskNumber, Status status) {
+        super(taskName, taskDescription, taskNumber, status);
     }
 
 
@@ -35,7 +36,7 @@ public class TaskManager extends TaskTracker.Task {
         subtaskKeys.add(subtaskHashMap.keySet());
         System.out.println("Вывод списка задач заданного типа: ");
         for (Set<Integer> key : subtaskKeys) {
-            taskHashMap.get(key);
+            subtaskHashMap.get(key);
         }
 
     }
@@ -46,7 +47,7 @@ public class TaskManager extends TaskTracker.Task {
         epicKeys.add(epicHashMap.keySet());
         System.out.println("Вывод списка задач заданного типа: ");
         for (Set<Integer> key : epicKeys) {
-            taskHashMap.get(key);
+           epicHashMap.get(key);
         }
 
     }
@@ -54,7 +55,7 @@ public class TaskManager extends TaskTracker.Task {
     // УДАЛЕНИЕ ВСЕХ ЗАДАЧ:
 
     public void removeAllTasks() {
-       taskKeys.add(taskHashMap.keySet());
+        taskKeys.add(taskHashMap.keySet());
         for (Set<Integer> key : taskKeys) {
             taskHashMap.remove(key);
         }
@@ -84,46 +85,47 @@ public class TaskManager extends TaskTracker.Task {
         return subtaskHashMap.get(subtaskID);
     }
 
-    public Epic getEpictaskWithID(int epictaskID) {
+    public ArrayList<Subtask> getEpictaskWithID(int epictaskID) {
         return epicHashMap.get(epictaskID);
     }
 
     // СОЗДАНИЕ НОВОЙ ЗАДАЧИ:
 
-public void createNewTask(Task task) {
+    public void createNewTask(Task task) {
         int taskID = getTaskID();
-        taskHashMap.put(taskID,task);
-    System.out.println("Новая задача под номером " + taskID + " успешно добавлена!");
-}
+        taskHashMap.put(taskID, task);
+        System.out.println("Новая задача под номером " + taskID + " успешно добавлена!");
+    }
 
-public void createNewSubtask(Subtask subtask) {
+    public void createNewSubtask(Subtask subtask) {
         int taskID = getTaskID();
-        subtaskHashMap.put(taskID,subtask);
-    System.out.println("Успешно добавлена новая подзадача под номером " + taskID);
-}
-public void createNewEpic(Epic epic) {
+        subtaskHashMap.put(taskID, subtask);
+        System.out.println("Успешно добавлена новая подзадача под номером " + taskID);
+    }
+
+    public void createNewEpic(ArrayList<Subtask> tasksInEpic) {
         int taskID = getTaskID();
-        epicHashMap.put(taskID,epic);
-    System.out.println("Успешно добавлен новый эпик под номером " + taskID);
-}
+        epicHashMap.put(taskID, tasksInEpic);
+        System.out.println("Успешно добавлен новый эпик под номером " + taskID);
+    }
 
     // ОБНОВЛЕНИЕ ЗАДАЧИ:
 
     public void updateTask(Task task) {
         if (taskHashMap.containsKey(task.taskNumber)) {
-            taskHashMap.put(task.taskNumber,task);
+            taskHashMap.put(task.taskNumber, task);
         }
     }
 
     public void updateSubtask(Subtask subtask) {
         if (subtaskHashMap.containsKey(subtask.taskNumber)) {
-            subtaskHashMap.put(subtask.taskNumber,subtask);
+            subtaskHashMap.put(subtask.taskNumber, subtask);
         }
     }
 
-    public void updateEpictask(Epic epic) {
-        if (epicHashMap.containsKey(epic.taskNumber)) {
-            epicHashMap.put(epic.taskNumber,epic);
+    public void updateEpictask(ArrayList<Subtask> newTasksInEpic, Epic oldEpic) {
+        if (epicHashMap.containsKey(oldEpic.taskNumber)) {
+            epicHashMap.put(oldEpic.taskNumber, newTasksInEpic);
         }
     }
 
@@ -143,8 +145,46 @@ public void createNewEpic(Epic epic) {
 
     // ПОЛУЧЕНИЕ СПИСКА ПОДЗАДАЧ ОПРЕДЕЛЕННОГО ЭПИКА
 
-    public void getSubtasksFromEpic() {
+    public ArrayList<Subtask> getSubtasksFromEpic(int epicID) {
+        if (epicHashMap.containsKey(epicID)) {
 
+            Status required;
+            ArrayList<Subtask> subtasks = epicHashMap.get(epicID);
+            Epic epic = getEpicById(epicID);
+
+            for (Subtask s : subtasks) {
+
+                required = Status.NEW;
+
+                while (s.getStatus() == required) {
+                    epic.setStatus(Status.NEW);
+                }
+                if (s.getStatus() != required) {
+                    epic.setStatus(Status.IN_PROGRESS);
+                }
+
+                required = Status.DONE;
+
+                while (s.getStatus() == required && s.getStatus() != Status.NEW) {
+                    epic.setStatus(Status.DONE);
+                }
+                if (s.getStatus() != required) {
+                    epic.setStatus(Status.IN_PROGRESS);
+                }
+
+            }
+
+            return epicHashMap.get(epicID);
+        } else {
+            System.out.println("Не существует эпика по указанному ID.");
+            return new ArrayList<>();
+        }
+    }
+
+// МЕТОД ДЛЯ ПОЛУЧЕНИЯ СООТВЕТСТВУЮЩЕГО ОБЬЕКТА Epic по его ID (используется для установки статуса)
+
+    public Epic getEpicById(int epicID) {
+        return idEpicHashMap.get(epicID);
     }
 
 }
