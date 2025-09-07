@@ -13,8 +13,8 @@ public class TaskManager extends TaskTracker.Task {
     ArrayList<Set<Integer>> subtaskKeys = new ArrayList<>();
     ArrayList<Set<Integer>> epicKeys = new ArrayList<>();
 
-    public TaskManager(String taskName, String taskDescription) {
-        super(taskName, taskDescription);
+    public TaskManager(String taskName, String taskDescription, int taskNumber) {
+        super(taskName, taskDescription, taskNumber);
     }
 
 
@@ -76,20 +76,75 @@ public class TaskManager extends TaskTracker.Task {
 
     // ПОЛУЧЕНИЕ ЗАДАЧИ ПО ИДЕНТИФИКАТОРУ:
 
-    public String getTaskWithID(int taskID) {
+    public Task getTaskWithID(int taskID) {
         return taskHashMap.get(taskID);
     }
 
-    public String getSubtaskWithID(int subtaskID) {
-        return taskHashMap.get(subtaskID);
+    public Subtask getSubtaskWithID(int subtaskID) {
+        return subtaskHashMap.get(subtaskID);
     }
 
-    public String getEpictaskWithID(int epictaskID) {
-        return taskHashMap.get(epictaskID);
+    public Epic getEpictaskWithID(int epictaskID) {
+        return epicHashMap.get(epictaskID);
     }
 
     // СОЗДАНИЕ НОВОЙ ЗАДАЧИ:
 
+public void createNewTask(Task task) {
+        int taskID = getTaskID();
+        taskHashMap.put(taskID,task);
+    System.out.println("Новая задача под номером " + taskID + " успешно добавлена!");
+}
 
+public void createNewSubtask(Subtask subtask) {
+        int taskID = getTaskID();
+        subtaskHashMap.put(taskID,subtask);
+    System.out.println("Успешно добавлена новая подзадача под номером " + taskID);
+}
+public void createNewEpic(Epic epic) {
+        int taskID = getTaskID();
+        epicHashMap.put(taskID,epic);
+    System.out.println("Успешно добавлен новый эпик под номером " + taskID);
+}
+
+    // ОБНОВЛЕНИЕ ЗАДАЧИ:
+
+    public void updateTask(Task task) {
+        if (taskHashMap.containsKey(task.taskNumber)) {
+            taskHashMap.put(task.taskNumber,task);
+        }
+    }
+
+    public void updateSubtask(Subtask subtask) {
+        if (subtaskHashMap.containsKey(subtask.taskNumber)) {
+            subtaskHashMap.put(subtask.taskNumber,subtask);
+        }
+    }
+
+    public void updateEpictask(Epic epic) {
+        if (epicHashMap.containsKey(epic.taskNumber)) {
+            epicHashMap.put(epic.taskNumber,epic);
+        }
+    }
+
+    // УДАЛЕНИЕ ЗАДАЧИ ПО ИДЕНТИФИКАТОРУ:
+
+    public void deleteTask(int taskID) {
+        taskHashMap.remove(taskID);
+    }
+
+    public void deleteSubtask(int subtaskID) {
+        subtaskHashMap.remove(subtaskID);
+    }
+
+    public void deleteEpic(int epicID) {
+        epicHashMap.remove(epicID);
+    }
+
+    // ПОЛУЧЕНИЕ СПИСКА ПОДЗАДАЧ ОПРЕДЕЛЕННОГО ЭПИКА
+
+    public void getSubtasksFromEpic() {
+
+    }
 
 }

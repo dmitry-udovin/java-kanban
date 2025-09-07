@@ -8,6 +8,7 @@ public class Task {
 
     private String taskName;
     private String taskDescription;
+    public int taskNumber;
 
     public static int getTaskID() {
         return taskID;
@@ -15,13 +16,14 @@ public class Task {
 
     private static int taskID = 0; // метод в TaskManager для увеличения счётчика
 
-    static HashMap<Integer, String> taskHashMap = new HashMap<>();
+    static HashMap<Integer, Task> taskHashMap = new HashMap<>();
 
-    public Task(String taskName, String taskDescription) {
+    public Task(String taskName, String taskDescription, int taskNumber) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
+        this.taskNumber = taskNumber;
         taskID++;
-        saveNewTask();
+     //   saveNewTask();
     }
 
 
@@ -52,11 +54,11 @@ public class Task {
     }
 
 
-    public void saveNewTask() {
-        if (this.getClass() == Task.class) {
-            taskHashMap.put(taskID, taskName);
-        }
-    }
+//    public void saveNewTask() {
+//        if (this.getClass() == Task.class) {
+//            taskHashMap.put(taskID, taskName);
+//        }
+//    }
 
     public enum Status {
         NEW,
