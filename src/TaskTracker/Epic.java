@@ -5,13 +5,18 @@ import java.util.HashMap;
 
 public class Epic extends TaskTracker.Task {
 
-    static HashMap<Integer, ArrayList<Subtask>> epicHashMap = new HashMap<>();
     static HashMap<Integer, Epic> idEpicHashMap = new HashMap<>();
 
-    public Epic(String epicTaskName, String epicTaskDescription, int epictaskNumber, Status status) {
-        super(epicTaskName, epicTaskDescription, epictaskNumber, status);
+    public void setTasksInEpic(ArrayList<Subtask> tasksInEpic) {
+        this.tasksInEpic = tasksInEpic;
+    }
 
-        int epicID = Task.getTaskID();
+
+    public ArrayList<Subtask> tasksInEpic = new ArrayList<>();
+
+    public Epic(String epicTaskName, String epicTaskDescription, Status status) {
+        super(epicTaskName, epicTaskDescription, status);
+
     }
 
 
