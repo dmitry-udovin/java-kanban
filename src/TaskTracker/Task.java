@@ -1,8 +1,5 @@
 package TaskTracker;
 
-import java.util.HashMap;
-import java.util.Objects;
-
 public class Task {
 
 
@@ -10,15 +7,15 @@ public class Task {
     private String taskDescription;
     private Status status;
 
-    public int getTaskId() {
-        return taskId;
-    }
-
     public void setTaskId(int taskId) {
         this.taskId = taskId;
     }
 
-    private static int taskId;
+    private int taskId;
+
+    public int getTaskId() {
+        return taskId;
+    }
 
 
     public void setStatus(Status status) {
@@ -29,17 +26,17 @@ public class Task {
         return status;
     }
 
-    public static int getTaskID() {
-        return taskId;
-    }
 
-    public Task(String taskName, String taskDescription, Status status) {
+    public Task(String taskName, String taskDescription, Status status, int taskId) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
         this.status = status;
-        taskId++;
+        this.taskId = taskId;
     }
 
+    public Task() {
+
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -61,6 +58,12 @@ public class Task {
         }
 
         return hash;
+    }
+
+    @Override
+    public String toString() {
+        return "taskID " + taskId + ", taskName=" + "{" + taskName + "}, taskDescription=" + "{" + taskDescription +
+                "}" + ", status={" + status + "}.  ";
     }
 
 

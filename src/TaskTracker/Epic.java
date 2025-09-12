@@ -1,23 +1,20 @@
 package TaskTracker;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Epic extends TaskTracker.Task {
 
-    static HashMap<Integer, Epic> idEpicHashMap = new HashMap<>();
+    public ArrayList<Subtask> tasksInEpic;
+
+    public Epic(String epicTaskName, String epicTaskDescription, Status status, int epicID) {
+        super(epicTaskName, epicTaskDescription, status, epicID);
+
+        tasksInEpic = new ArrayList<>();
+
+    }
 
     public void setTasksInEpic(ArrayList<Subtask> tasksInEpic) {
         this.tasksInEpic = tasksInEpic;
     }
-
-
-    public ArrayList<Subtask> tasksInEpic = new ArrayList<>();
-
-    public Epic(String epicTaskName, String epicTaskDescription, Status status) {
-        super(epicTaskName, epicTaskDescription, status);
-
-    }
-
 
 }
