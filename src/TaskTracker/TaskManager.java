@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class TaskManager extends TaskTracker.Task {
+public class TaskManager {
 
     public TaskManager() {
 
     }
 
     private static int taskID = 0;
-    HashMap<Integer, Task> taskHashMap = new HashMap<>();
-    HashMap<Integer, Subtask> subtaskHashMap = new HashMap<>();
-    HashMap<Integer, Epic> epicHashMap = new HashMap<>();
+    private HashMap<Integer, Task> taskHashMap = new HashMap<>();
+    private HashMap<Integer, Subtask> subtaskHashMap = new HashMap<>();
+    private HashMap<Integer, Epic> epicHashMap = new HashMap<>();
 
     // ПОЛУЧЕНИЕ СПИСКОВ ЗАДАЧ:
 
@@ -56,10 +56,21 @@ public class TaskManager extends TaskTracker.Task {
     }
 
     public void removeAllSubtasks() {
+
         subtaskHashMap.clear();
+
+        for (Epic epic : epicHashMap.values()) {
+            updateEpicStatus(epic);
+        }
+
+
     }
 
     public void removeAllEpicTasks() {
+        for (Epic epic : epicHashMap.values()) {
+            ArrayList<Subtask> tasksInEpic = epic.getTasksInEpic();
+            tasksInEpic.clear();
+        }
         epicHashMap.clear();
     }
 
@@ -92,7 +103,7 @@ public class TaskManager extends TaskTracker.Task {
         if (epicHashMap.containsKey(subtask.getTaskId())) {
             subtaskHashMap.put(taskID, subtask);
             Epic epic = epicHashMap.get(subtask.getTaskId());
-            epic.tasksInEpic.add(subtask);
+            epic.getTasksInEpic().add(subtask);
 
             System.out.println("Добавлена новая подзадача в эпик под номером " + epic.getTaskId());
 
@@ -123,8 +134,12 @@ public class TaskManager extends TaskTracker.Task {
 
         subtaskHashMap.put(subtask.getTaskId(), subtask);
         Epic epic = epicHashMap.get(subtask.getTaskId());
-        epic.tasksInEpic.remove(subtask.getTaskId());
-        epic.tasksInEpic.add(subtask);
+
+        epic.getTasksInEpic().remove(subtask.getTaskId());
+        epic.getTasksInEpic().add(subtask);
+
+        updateEpicStatus(epic);
+
     }
 
     public void updateEpic(Epic epic) {
@@ -151,7 +166,7 @@ public class TaskManager extends TaskTracker.Task {
             Epic epic = epicHashMap.get(subtaskID);
 
             subtaskHashMap.remove(subtaskID);
-            epic.tasksInEpic.remove(subtaskID);
+            epic.getTasksInEpic().remove(subtaskID);
 
             updateEpicStatus(epic);
 
@@ -165,7 +180,8 @@ public class TaskManager extends TaskTracker.Task {
         if (epicHashMap.containsKey(epicID)) {
             Epic epic = epicHashMap.get(epicID);
             epicHashMap.remove(epicID);
-            epic.tasksInEpic.clear();
+            subtaskHashMap.remove(epicID);
+            epic.getTasksInEpic().clear();
 
         } else {
             System.out.println("Нет эпика по указанному ID.");
@@ -174,31 +190,32 @@ public class TaskManager extends TaskTracker.Task {
 
     // ПОЛУЧЕНИЕ СПИСКА ПОДЗАДАЧ ОПРЕДЕЛЕННОГО ЭПИКА
 
-    public void getSubtasksFromEpic(int epicID) {
+    public ArrayList<Subtask> getSubtasksFromEpic(int epicID) {
         if (epicHashMap.containsKey(epicID)) {
             Epic epic = epicHashMap.get(epicID);
-            System.out.println(epic.tasksInEpic);
+            return epic.getTasksInEpic();
         } else {
             System.out.println("Не существует эпика по указанному ID.");
+            return new ArrayList<>();
         }
     }
 
     // ОБНОВЛЕНИЕ СТАТУСА ЭПИКА
 
     public void updateEpicStatus(Epic epic) {
-        for (Subtask taskInEpic : epic.tasksInEpic) {
+        for (Subtask taskInEpic : epic.getTasksInEpic()) {
 
-            if (taskInEpic.getStatus() == Status.DONE && epic.getStatus() == Status.DONE) {
-                epic.setStatus(Status.DONE);
+            if (taskInEpic.getStatus() == Task.Status.DONE) {
+                epic.setStatus(Task.Status.DONE);
                 continue;
             }
 
-            if (taskInEpic.getStatus() == Status.NEW && epic.getStatus() == Status.NEW) {
-                epic.setStatus(Status.NEW);
+            if (taskInEpic.getStatus() == Task.Status.NEW || epic.getTasksInEpic().isEmpty()) {
+                epic.setStatus(Task.Status.NEW);
                 continue;
             }
 
-            epic.setStatus(Status.IN_PROGRESS);
+            epic.setStatus(Task.Status.IN_PROGRESS);
             break;
 
         }

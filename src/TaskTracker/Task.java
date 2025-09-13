@@ -2,7 +2,7 @@ package TaskTracker;
 
 public class Task {
 
-
+    private int taskId;
     private String taskName;
     private String taskDescription;
     private Status status;
@@ -10,8 +10,6 @@ public class Task {
     public void setTaskId(int taskId) {
         this.taskId = taskId;
     }
-
-    private int taskId;
 
     public int getTaskId() {
         return taskId;

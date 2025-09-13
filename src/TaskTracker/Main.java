@@ -1,7 +1,5 @@
 package TaskTracker;
 
-import java.util.ArrayList;
-
 public class Main {
 
     public static void main(String[] args) {
@@ -87,6 +85,15 @@ public class Main {
         System.out.println("после очистки списка: ");
         taskManager.removeAllTasks();
         System.out.println(taskManager.getTaskList());
+
+        System.out.println("---------------------------------------");
+
+        taskManager.getEpictaskWithID(2);
+
+        taskManager.removeAllSubtasks();
+        taskManager.removeAllEpicTasks();
+
+        
 
     }
 
