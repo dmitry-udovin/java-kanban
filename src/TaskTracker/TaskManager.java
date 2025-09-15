@@ -2,13 +2,11 @@ package TaskTracker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class TaskManager {
 
-    public TaskManager() {
-
-    }
 
     private static int taskID = 0;
     private HashMap<Integer, Task> taskHashMap = new HashMap<>();
@@ -61,6 +59,7 @@ public class TaskManager {
 
         for (Epic epic : epicHashMap.values()) {
             updateEpicStatus(epic);
+            epic.getTasksInEpic().clear();
         }
 
 
@@ -72,6 +71,7 @@ public class TaskManager {
             tasksInEpic.clear();
         }
         epicHashMap.clear();
+        subtaskHashMap.clear();
     }
 
     // ПОЛУЧЕНИЕ ЗАДАЧИ ПО ИДЕНТИФИКАТОРУ:
@@ -203,22 +203,32 @@ public class TaskManager {
     // ОБНОВЛЕНИЕ СТАТУСА ЭПИКА
 
     public void updateEpicStatus(Epic epic) {
-        for (Subtask taskInEpic : epic.getTasksInEpic()) {
+        List<Subtask> tasksInEpic = epic.getTasksInEpic();
 
-            if (taskInEpic.getStatus() == Task.Status.DONE) {
+        if (tasksInEpic == null || tasksInEpic.isEmpty()) {
+            epic.setStatus(Task.Status.NEW);
+            return;
+        }
+
+        boolean allDone = true;
+        boolean allNew = true;
+
+        for (Subtask task : tasksInEpic) {
+            if (task.getStatus() != Task.Status.DONE) allDone = false;
+            if (task.getStatus() != Task.Status.NEW) allNew = false;
+
+
+            if (allDone) {
                 epic.setStatus(Task.Status.DONE);
-                continue;
-            }
-
-            if (taskInEpic.getStatus() == Task.Status.NEW || epic.getTasksInEpic().isEmpty()) {
+            } else if (allNew) {
                 epic.setStatus(Task.Status.NEW);
-                continue;
+            } else {
+                epic.setStatus(Task.Status.IN_PROGRESS);
             }
 
-            epic.setStatus(Task.Status.IN_PROGRESS);
-            break;
 
         }
+
     }
 
 

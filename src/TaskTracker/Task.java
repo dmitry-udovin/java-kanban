@@ -7,6 +7,15 @@ public class Task {
     private String taskDescription;
     private Status status;
 
+
+    public Task(String taskName, String taskDescription, Status status, int taskId) {
+        this.taskName = taskName;
+        this.taskDescription = taskDescription;
+        this.status = status;
+        this.taskId = taskId;
+    }
+
+
     public void setTaskId(int taskId) {
         this.taskId = taskId;
     }
@@ -22,18 +31,6 @@ public class Task {
 
     public Status getStatus() {
         return status;
-    }
-
-
-    public Task(String taskName, String taskDescription, Status status, int taskId) {
-        this.taskName = taskName;
-        this.taskDescription = taskDescription;
-        this.status = status;
-        this.taskId = taskId;
-    }
-
-    public Task() {
-
     }
 
     @Override
