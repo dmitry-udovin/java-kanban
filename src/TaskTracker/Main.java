@@ -12,7 +12,7 @@ public class Main {
         Epic epic1 = new Epic("Эпик 1","описание3", Task.Status.NEW, 2);
         Epic epic2 = new Epic("Эпик 2","описание4", Task.Status.DONE, 3);
 
-        TaskManager taskManager = new TaskManager();
+        TaskManager taskManager = Managers.getDefault();
 
         Subtask firstSubtaskForEpic1 = new Subtask("подзадача 1","описание подзадачи",
                 Task.Status.DONE,2);
@@ -95,6 +95,30 @@ public class Main {
 
         
 
+    }
+
+    private static void printAllTasks(TaskManager manager) {
+        System.out.println("Задачи:");
+        for (Task task : manager.getTaskList()) {
+            System.out.println(task);
+        }
+        System.out.println("Эпики:");
+        for (Task epic : manager.getEpicList()) {
+            System.out.println(epic);
+
+            for (Task task : manager.getSubtasksFromEpic(epic.getTaskId())) {
+                System.out.println("--> " + task);
+            }
+        }
+        System.out.println("Подзадачи:");
+        for (Task subtask : manager.getSubtaskList()) {
+            System.out.println(subtask);
+        }
+
+        System.out.println("История:");
+        for (Task task : manager.getManager().getHistory()) {
+            System.out.println(task);
+        }
     }
 
 }
