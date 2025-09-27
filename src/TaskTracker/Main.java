@@ -9,8 +9,8 @@ public class Main {
         Task task1 = new Task("Задача 1","описание1", Task.Status.DONE,0);
         Task task2 = new Task("Задача 2","описание2", Task.Status.NEW,1);
 
-        Epic epic1 = new Epic("Эпик 1","описание3", Task.Status.NEW, 2);
-        Epic epic2 = new Epic("Эпик 2","описание4", Task.Status.DONE, 3);
+        Epic epic1 = new Epic("Эпик 1","описание3", 2);
+        Epic epic2 = new Epic("Эпик 2","описание4", 3);
 
         TaskManager taskManager = Managers.getDefault();
 

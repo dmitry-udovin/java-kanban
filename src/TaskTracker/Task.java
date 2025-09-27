@@ -2,7 +2,7 @@ package TaskTracker;
 
 public class Task {
 
-    private int taskId;
+    private int taskId = -1;
     private String taskName;
     private String taskDescription;
     private Status status;
@@ -15,6 +15,19 @@ public class Task {
         this.taskId = taskId;
     }
 
+    public Task(String taskName, String taskDescription, Status status) {
+        this.taskName = taskName;
+        this.taskDescription = taskDescription;
+        this.status = status;
+    }
+
+    public String getTaskName() {
+        return this.taskName;
+    }
+
+    public String getTaskDescription() {
+        return this.taskDescription;
+    }
 
     public void setTaskId(int taskId) {
         this.taskId = taskId;

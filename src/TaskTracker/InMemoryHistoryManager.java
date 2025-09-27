@@ -15,7 +15,8 @@ public class InMemoryHistoryManager implements HistoryManager {
     if(taskHistoryList.size() == 10) {
         taskHistoryList.remove(0);
     }
-    taskHistoryList.add(task);
+    Task copy = new Task(task.getTaskName(),task.getTaskDescription(),task.getStatus(),task.getTaskId());
+    taskHistoryList.add(copy);
 }
 
 

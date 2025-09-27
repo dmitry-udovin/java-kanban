@@ -21,11 +21,11 @@ public interface TaskManager {
 
     Epic getEpictaskWithID(int epictaskID);
 
-    void createNewTask(Task task);
+    int createNewTask(Task task); // поменял void на int
 
-    void createNewSubtask(Subtask subtask);
+    int createNewSubtask(Subtask subtask); // поменял void на int
 
-    void createNewEpic(Epic epic);
+    int createNewEpic(Epic epic); // поменял void на int
 
     void updateTask(Task task);
 
@@ -45,6 +45,5 @@ public interface TaskManager {
 
     InMemoryHistoryManager getManager();
 
-    //ArrayList<Task> getHistory();
 
 }
