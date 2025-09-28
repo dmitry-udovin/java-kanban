@@ -1,9 +1,16 @@
-package TaskTracker;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tasktracker.tasks.Epic;
+import tasktracker.managers.HistoryManager;
+import tasktracker.managers.InMemoryHistoryManager;
+import tasktracker.managers.InMemoryTaskManager;
+import tasktracker.managers.Managers;
+import tasktracker.tasks.Subtask;
+import tasktracker.tasks.Task;
+import tasktracker.managers.TaskManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,7 +34,7 @@ class TaskTrackerTest {
         assertNotNull(savedTask, "Задача не найдена.");
         assertEquals(task, savedTask, "Задачи не совпадают.");
 
-        final ArrayList<Task> tasks = taskManager.getTaskList();
+        final List<Task> tasks = taskManager.getTaskList();
 
         assertNotNull(tasks, "Задачи не возвращаются.");
         assertEquals(1, tasks.size(), "Неверное количество задач.");

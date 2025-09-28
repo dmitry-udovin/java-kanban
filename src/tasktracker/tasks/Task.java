@@ -1,4 +1,4 @@
-package TaskTracker;
+package tasktracker.tasks;
 
 public class Task {
 

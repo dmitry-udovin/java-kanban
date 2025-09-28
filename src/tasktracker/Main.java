@@ -1,4 +1,12 @@
-package TaskTracker;
+package tasktracker;
+
+import tasktracker.managers.InMemoryHistoryManager;
+import tasktracker.managers.InMemoryTaskManager;
+import tasktracker.managers.Managers;
+import tasktracker.managers.TaskManager;
+import tasktracker.tasks.Epic;
+import tasktracker.tasks.Subtask;
+import tasktracker.tasks.Task;
 
 public class Main {
 
@@ -82,6 +90,7 @@ public class Main {
         System.out.println(taskManager.getEpicList());
 
         System.out.println("---------------------------------------");
+        printAllTasks(taskManager);
         System.out.println("после очистки списка: ");
         taskManager.removeAllTasks();
         System.out.println(taskManager.getTaskList());
@@ -89,6 +98,8 @@ public class Main {
         System.out.println("---------------------------------------");
 
         taskManager.getEpictaskWithID(2);
+
+        printAllTasks(taskManager);
 
         taskManager.removeAllSubtasks();
         taskManager.removeAllEpicTasks();
@@ -98,6 +109,8 @@ public class Main {
     }
 
     private static void printAllTasks(TaskManager manager) {
+        manager = Managers.getDefault();
+     //   InMemoryHistoryManager historyManager = manager.getHistoryManager();
         System.out.println("Задачи:");
         for (Task task : manager.getTaskList()) {
             System.out.println(task);
@@ -116,7 +129,7 @@ public class Main {
         }
 
         System.out.println("История:");
-        for (Task task : manager.getManager().getHistory()) {
+        for (Task task : manager.getHistory()) {
             System.out.println(task);
         }
     }

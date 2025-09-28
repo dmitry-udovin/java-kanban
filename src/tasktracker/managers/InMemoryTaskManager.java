@@ -1,4 +1,8 @@
-package TaskTracker;
+package tasktracker.managers;
+
+import tasktracker.tasks.Epic;
+import tasktracker.tasks.Subtask;
+import tasktracker.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,25 +12,20 @@ import java.util.List;
 public class InMemoryTaskManager implements TaskManager {
 
 
-    private InMemoryHistoryManager manager = new InMemoryHistoryManager();
+    private HistoryManager historyManager = Managers.getDefaultHistory();
 
 
     private static int taskID = 0;
     private HashMap<Integer, Task> taskHashMap = new HashMap<>();
     private HashMap<Integer, Subtask> subtaskHashMap = new HashMap<>();
     private HashMap<Integer, Epic> epicHashMap = new HashMap<>();
-    private ArrayList<Task> taskHistoryList;
-
-
-    public InMemoryTaskManager() {
-        this.taskHistoryList = new ArrayList<>();
-    }
 
 
     @Override
-    public InMemoryHistoryManager getManager() {
-        return manager;
+    public List<Task> getHistory() {
+        return historyManager.getHistory();
     }
+
 
     // ПОЛУЧЕНИЕ СПИСКОВ ЗАДАЧ:
 
@@ -99,19 +98,19 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskWithID(int taskID) {
-        manager.add(taskHashMap.get(taskID));
+        historyManager.add(taskHashMap.get(taskID));
         return taskHashMap.get(taskID);
     }
 
     @Override
     public Subtask getSubtaskWithID(int subtaskID) {
-        manager.add(subtaskHashMap.get(subtaskID));
+        historyManager.add(subtaskHashMap.get(subtaskID));
         return subtaskHashMap.get(subtaskID);
     }
 
     @Override
     public Epic getEpictaskWithID(int epictaskID) {
-        manager.add(epicHashMap.get(epictaskID));
+        historyManager.add(epicHashMap.get(epictaskID));
         return epicHashMap.get(epictaskID);
     }
 
