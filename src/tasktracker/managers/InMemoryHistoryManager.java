@@ -5,36 +5,46 @@ import tasktracker.tasks.Subtask;
 import tasktracker.tasks.Task;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    private ArrayList<Task> taskHistory;
+    private Map<Integer,Node<Task>> taskHistoryMap;
+
+    private LinkedListForTasks<Integer,Node<Task>> listOfTasks;
 
     public InMemoryHistoryManager() {
-        this.taskHistory = new ArrayList<>();
+        this.taskHistoryMap = new HashMap<>();
+        this.listOfTasks = new LinkedListForTasks<>();
     }
 
     @Override
     public void add(Task task) {
-        if (taskHistory.size() == 10) {
-            taskHistory.remove(0);
-        }
-        Task copy;
-        if (task instanceof Task) {
-            copy = new Task(task.getTaskName(), task.getTaskDescription(), task.getStatus(), task.getTaskId());
-            taskHistory.add(copy);
-        } else if (task instanceof Subtask) {
-            copy = new Subtask(task.getTaskName(), task.getTaskDescription(), task.getStatus(), task.getTaskId());
-            taskHistory.add(copy);
-        } else if (task instanceof Epic) {
-            copy = new Epic(task.getTaskName(), task.getTaskDescription(), task.getTaskId());
-            taskHistory.add(copy);
-        }
+    int id = task.getTaskId();
+
+    Node<Task> oldNode = taskHistoryMap.get(id);
+    if (oldNode != null) {
+        listOfTasks.removeNode(oldNode);
     }
 
+    listOfTasks.linkLast(task);
+
+    Node<Task> newNode = listOfTasks.get(id);
+    taskHistoryMap.put(id,newNode);
+    }
 
     public ArrayList<Task> getHistory() {
-        return taskHistory;
+        return listOfTasks.getTasks();
+    }
+
+    public void remove(int taskId) {
+    Node<Task> node = taskHistoryMap.get(taskId);
+    if (node != null) {
+        listOfTasks.removeNode(node);
+        taskHistoryMap.remove(taskId);
+    }
     }
 
 }

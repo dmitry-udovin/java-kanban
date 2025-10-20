@@ -193,14 +193,18 @@ class TaskTrackerTest {
     void shouldStoreLastReleaseOfTaskInHistory() {
         HistoryManager historyManager = new InMemoryHistoryManager();
         Task originalTask = new Task("Task1", "desc", Task.Status.NEW);
-        // добавляем в историю
-        historyManager.add(originalTask);
+        // добавляем в историю копию задачи
+        Task originalTaskCopy = new Task("Task1", "desc", Task.Status.NEW);
+        historyManager.add(originalTaskCopy);
+
 
         // меняем исходный объект
         originalTask.setStatus(Task.Status.IN_PROGRESS);
 
         // получаем задачу из истории
-        Task taskFromHistory = historyManager.getHistory().get(0);
+        List<Task> taskList = historyManager.getHistory();
+        Task taskFromHistory = taskList.get(0);
+
 
         // проверяем, что в истории осталась старая версия
         assertEquals(Task.Status.NEW, taskFromHistory.getStatus(), "статус в истории должен остаться прежним");
