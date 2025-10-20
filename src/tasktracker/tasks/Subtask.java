@@ -2,7 +2,7 @@ package tasktracker.tasks;
 
 public class Subtask extends Task {
 
-    private final int epicId;
+    private int epicId;
 
 
     public Subtask(String subTaskName, String subtaskDescription, Status status, int epicId) {
@@ -13,6 +13,10 @@ public class Subtask extends Task {
 
     public int getEpicId() {
         return epicId;
+    }
+
+    public void setEpicId(int epicId) {
+        this.epicId = epicId;
     }
 
 }
