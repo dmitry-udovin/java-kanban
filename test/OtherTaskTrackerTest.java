@@ -19,10 +19,10 @@ public class OtherTaskTrackerTest {
 
     @Test
     void removedSubtaskShouldNotKeepEpicLink() {
-        Epic epic = new Epic("epic","desc",1);
+        Epic epic = new Epic("epic", "desc", 1);
         manager.createNewEpic(epic);
 
-        Subtask subtask = new Subtask("subtask","desc",
+        Subtask subtask = new Subtask("subtask", "desc",
                 Task.Status.NEW, epic.getTaskId());
         manager.createNewSubtask(subtask);
         int subtaskId = subtask.getTaskId();
@@ -38,14 +38,14 @@ public class OtherTaskTrackerTest {
 
     @Test
     void epicShouldDropDeletedSubtaskId() {
-        Epic epic = new Epic("epic","desc",1);
+        Epic epic = new Epic("epic", "desc", 1);
         manager.createNewEpic(epic);
         int epicId = epic.getTaskId();
 
-        Subtask subtask1 = new Subtask("s1","desc",
+        Subtask subtask1 = new Subtask("s1", "desc",
                 Task.Status.NEW, epicId);
-        Subtask subtask2 = new Subtask("s2","desc",
-                Task.Status.IN_PROGRESS,epicId);
+        Subtask subtask2 = new Subtask("s2", "desc",
+                Task.Status.IN_PROGRESS, epicId);
         manager.createNewSubtask(subtask1);
         manager.createNewSubtask(subtask2);
 
@@ -69,15 +69,15 @@ public class OtherTaskTrackerTest {
 
     @Test
     void epicShouldBeCleanAfterRemoveAllSubtasks() {
-        Epic epic = new Epic("epic","desc",1);
+        Epic epic = new Epic("epic", "desc", 1);
         manager.createNewEpic(epic);
 
         int epicId = epic.getTaskId();
 
-        Subtask subtask1 = new Subtask("s1","desc",
-                Task.Status.NEW,epicId);
-        Subtask subtask2 = new Subtask("s2","desc",
-                Task.Status.IN_PROGRESS,epicId);
+        Subtask subtask1 = new Subtask("s1", "desc",
+                Task.Status.NEW, epicId);
+        Subtask subtask2 = new Subtask("s2", "desc",
+                Task.Status.IN_PROGRESS, epicId);
 
         manager.createNewSubtask(subtask1);
         manager.createNewSubtask(subtask2);
@@ -97,8 +97,8 @@ public class OtherTaskTrackerTest {
     // ЦЕЛОСТНОСТЬ ДАННЫХ ВНУТРИ МЕНЕДЖЕРА
 
     @Test
-    void externalIdChangeMustNotAffectOnManager () {
-        Task task = new Task("task","desc", Task.Status.NEW);
+    void externalIdChangeMustNotAffectOnManager() {
+        Task task = new Task("task", "desc", Task.Status.NEW);
         manager.createNewTask(task);
         int oldId = task.getTaskId();
 
@@ -115,13 +115,13 @@ public class OtherTaskTrackerTest {
 
     @Test
     void externalEpicIdChangeMustNotMoveSubtaskBetweenEpics() {
-        Epic epic1 = new Epic("epic","desc",1);
-        Epic epic2 = new Epic("epic","desc",2);
+        Epic epic1 = new Epic("epic", "desc", 1);
+        Epic epic2 = new Epic("epic", "desc", 2);
 
         manager.createNewEpic(epic1);
         manager.createNewEpic(epic2);
 
-        Subtask subtask = new Subtask("subtask","desc",
+        Subtask subtask = new Subtask("subtask", "desc",
                 Task.Status.NEW, epic1.getTaskId());
         manager.createNewSubtask(subtask);
         int subtaskId = subtask.getTaskId();
@@ -138,10 +138,10 @@ public class OtherTaskTrackerTest {
 
     @Test
     void externalSubtaskStatusChangeMustNotUpdateEpic() {
-        Epic epic = new Epic("epic","desc",1);
+        Epic epic = new Epic("epic", "desc", 1);
         manager.createNewEpic(epic);
 
-        Subtask subtask = new Subtask("subtask","desc",
+        Subtask subtask = new Subtask("subtask", "desc",
                 Task.Status.NEW, epic.getTaskId());
 
         manager.createNewSubtask(subtask);
@@ -152,7 +152,7 @@ public class OtherTaskTrackerTest {
         assertEquals(Task.Status.NEW, epicStatusBefore,
                 "статус эпика не должен измениться от внешнего сеттера");
 
-        Subtask sUpdated = new Subtask(subtask.getTaskName(),subtask.getTaskDescription(),
+        Subtask sUpdated = new Subtask(subtask.getTaskName(), subtask.getTaskDescription(),
                 Task.Status.DONE, subtask.getEpicId());
 
         manager.updateSubtask(sUpdated);

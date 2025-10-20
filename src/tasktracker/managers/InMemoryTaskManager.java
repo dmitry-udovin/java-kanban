@@ -135,10 +135,9 @@ public class InMemoryTaskManager implements TaskManager {
         if (storedSubtask == null) return null;
 
 
-
         historyManager.add(storedSubtask);
-        return new Subtask(storedSubtask.getTaskName(),storedSubtask.getTaskDescription(),
-                storedSubtask.getStatus(),storedSubtask.getTaskId());
+        return new Subtask(storedSubtask.getTaskName(), storedSubtask.getTaskDescription(),
+                storedSubtask.getStatus(), storedSubtask.getEpicId());
     }
 
     @Override
@@ -148,7 +147,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (storedEpic == null) return null;
 
         historyManager.add(storedEpic);
-        return new Epic(storedEpic.getTaskName(),storedEpic.getTaskDescription(),storedEpic.getTaskId());
+        return new Epic(storedEpic.getTaskName(), storedEpic.getTaskDescription(), storedEpic.getTaskId());
     }
 
     // СОЗДАНИЕ НОВОЙ ЗАДАЧИ:
@@ -156,54 +155,55 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public int createNewTask(Task task) {
 
-        int id = task.getTaskId();
+        int newTaskId = taskID++;
 
         Task copyOfTask = new Task(task.getTaskName(), task.getTaskDescription(),
-                task.getStatus(), id);
-        copyOfTask.setTaskId(taskID);
-        taskHashMap.put(id, copyOfTask);
-        System.out.println("Новая задача под номером " + taskID + " успешно добавлена!");
-        return taskID++;
+                task.getStatus(), newTaskId);
+        copyOfTask.setTaskId(newTaskId);
+        taskHashMap.put(newTaskId, copyOfTask);
+        System.out.println("Новая задача под номером " + newTaskId + " успешно добавлена!");
+        return newTaskId;
     }
 
     @Override
     public int createNewSubtask(Subtask subtask) {
 
-        int epicId = subtask.getEpicId();
+        int newEpicId = taskID++;
 
         Subtask copyOfSubtask = new Subtask(subtask.getTaskName(), subtask.getTaskDescription(),
-                subtask.getStatus(), epicId);
+                subtask.getStatus(), newEpicId);
 
-        subtaskHashMap.put(taskID, copyOfSubtask);
+        subtaskHashMap.put(newEpicId, copyOfSubtask);
 
 
-        Epic epic = epicHashMap.get(epicId);
+        Epic epic = epicHashMap.get(copyOfSubtask.getEpicId());
         if (epic == null) {
-            System.out.println("Не существует эпика с номером " + epicId + " для добавления подзадачи.");
+            System.out.println("Не существует эпика с номером " + newEpicId + " для добавления подзадачи.");
             return -1;
         }
 
-        if (copyOfSubtask.getTaskId() == epicId && subtask.getTaskId() != -1) {
+        if (subtask.getTaskId() == newEpicId && subtask.getTaskId() != -1) {
             throw new IllegalArgumentException("Эпик не может быть своей же подзадачей");
         }
 
         epic.getTasksInEpic().add(copyOfSubtask);
-        System.out.println("Добавлена новая подзадача в эпик под номером " + epicId);
+        System.out.println("Добавлена новая подзадача в эпик под номером " + newEpicId);
 
         updateEpicStatus(epic);
-        return taskID++;
+        return newEpicId;
     }
 
     @Override
     public int createNewEpic(Epic epic) {
 
-        int id = epic.getTaskId();
-        Epic copyOfEpic = new Epic(epic.getTaskName(), epic.getTaskDescription(), id);
+        int newEpicId = taskID++;
+
+        Epic copyOfEpic = new Epic(epic.getTaskName(), epic.getTaskDescription(), newEpicId);
 
 
-        epicHashMap.put(taskID, copyOfEpic);
-        System.out.println("Успешно добавлен новый эпик под номером " + id);
-        return taskID++;
+        epicHashMap.put(newEpicId, copyOfEpic);
+        System.out.println("Успешно добавлен новый эпик под номером " + newEpicId);
+        return newEpicId;
     }
 
     // ОБНОВЛЕНИЕ ЗАДАЧИ:

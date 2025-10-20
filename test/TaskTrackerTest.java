@@ -120,10 +120,10 @@ class TaskTrackerTest {
         // 1) Эпик
         Epic epic = new Epic("epic", "testEpic", 0);
         taskManager.createNewEpic(epic);
-        int epicId = epic.getTaskId(); // фактический id, проставленный менеджером
+        int epicId = taskManager.getEpictaskWithID(0).getTaskId();
 
         // 2) Обычная задача
-        Task task = new Task("task", "testTask", Task.Status.IN_PROGRESS);
+        Task task = new Task("task", "testTask", Task.Status.IN_PROGRESS, 2);
         taskManager.createNewTask(task);
         int taskId = task.getTaskId();
 
