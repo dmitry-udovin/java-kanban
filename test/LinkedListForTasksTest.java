@@ -1,4 +1,3 @@
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tasktracker.managers.LinkedListForTasks;
@@ -12,103 +11,76 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class LinkedListForTasksTest {
 
-    private Task createTask(int id) {
+    private Task createNewTask(int id) {
         return new Task("Task", "desc", Task.Status.NEW, id);
     }
 
-    private List<Integer> getIdsList(List<Task> tasks) {
+    private List<Integer> getTasksIdList(List<Task> tasks) {
         List<Integer> out = new ArrayList<>();
         for (Task x : tasks) out.add(x.getTaskId());
         return out;
     }
 
-    private LinkedListForTasks<Integer, Node<Task>> list;
+    private LinkedListForTasks list;
 
     @BeforeEach
-    public void createNewLinkedList() {
-        list = new LinkedListForTasks<>();
+    void setUp() {
+        list = new LinkedListForTasks();
     }
 
     @Test
     void insertsIntoEmptyList() {
-        list.linkLast(createTask(1));
+        list.linkLast(createNewTask(1));
 
-        assertEquals(1, list.size(), "size after first insert");
-        assertEquals(List.of(1), getIdsList(list.getTasks()));
-
+        assertEquals(1, list.getTasks().size(), "size after first insert");
+        assertEquals(List.of(1), getTasksIdList(list.getTasks()));
     }
 
     @Test
     void shouldAppendTasksInRightOrder() {
-        list.linkLast(createTask(1));
-        list.linkLast(createTask(2));
-        list.linkLast(createTask(3));
+        list.linkLast(createNewTask(1));
+        list.linkLast(createNewTask(2));
+        list.linkLast(createNewTask(3));
 
-        assertEquals(3, list.size());
-        assertEquals(List.of(1, 2, 3), getIdsList(list.getTasks()));
-
-    }
-
-    @Test
-    void shouldInsertExistingNodeToTailWithoutDuplicate() {
-        list.linkLast(createTask(1));
-        list.linkLast(createTask(2));
-        list.linkLast(createTask(3));
-
-        list.linkLast(createTask(2));
-
-        assertEquals(List.of(1, 3, 2), getIdsList(list.getTasks()));
-        assertEquals(3, list.size(), "must not create duplicate");
-
+        assertEquals(3, list.getTasks().size());
+        assertEquals(List.of(1, 2, 3), getTasksIdList(list.getTasks()));
     }
 
     @Test
     void shouldCorrectRemoveHead() {
+        Node<Task> n1 = list.linkLast(createNewTask(1));
+        list.linkLast(createNewTask(2));
+        list.linkLast(createNewTask(3));
 
-        list.linkLast(createTask(1));
-        list.linkLast(createTask(2));
-        list.linkLast(createTask(3));
+        list.removeNode(n1);
 
-        Node<Task> headNode = list.get(1);
-
-        list.removeNode(headNode);
-
-        assertEquals(2, list.size());
-        assertEquals(List.of(2, 3), getIdsList(list.getTasks()));
-
-        assertNull(headNode.prev);
-        assertNull(headNode.next);
-
+        assertEquals(2, list.getTasks().size());
+        assertEquals(List.of(2, 3), getTasksIdList(list.getTasks()));
+        assertNull(n1.prev);
+        assertNull(n1.next);
     }
 
     @Test
     void shouldCorrectRemoveTail() {
-        list.linkLast(createTask(1));
-        list.linkLast(createTask(2));
-        list.linkLast(createTask(3));
+        list.linkLast(createNewTask(1));
+        list.linkLast(createNewTask(2));
+        Node<Task> n3 = list.linkLast(createNewTask(3));
 
-        Node<Task> tailNode = list.get(3);
+        list.removeNode(n3);
 
-        list.removeNode(tailNode);
-
-        assertEquals(2, list.size());
-        assertEquals(List.of(1, 2), getIdsList(list.getTasks()));
-        assertNull(tailNode.prev);
-        assertNull(tailNode.next);
-
+        assertEquals(2, list.getTasks().size());
+        assertEquals(List.of(1, 2), getTasksIdList(list.getTasks()));
+        assertNull(n3.prev);
+        assertNull(n3.next);
     }
 
     @Test
     void shouldCorrectRemoveSingleElementList() {
-        list.linkLast(createTask(15));
+        Node<Task> one = list.linkLast(createNewTask(15));
 
-        Node<Task> oneNode = list.get(15);
+        list.removeNode(one);
 
-        list.removeNode(oneNode);
-
-        assertEquals(0, list.size());
+        assertEquals(0, list.getTasks().size());
         assertTrue(list.getTasks().isEmpty());
-
     }
-
 }
