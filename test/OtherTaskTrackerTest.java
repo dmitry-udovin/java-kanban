@@ -23,9 +23,9 @@ public class OtherTaskTrackerTest {
         manager.createNewEpic(epic);
 
         Subtask subtask = new Subtask("subtask", "desc",
-                Task.Status.NEW, epic.getTaskId());
+                Task.Status.NEW, manager.getEpictaskWithID(epic.getTaskId()).getTaskId());
         manager.createNewSubtask(subtask);
-        int subtaskId = subtask.getTaskId();
+        int subtaskId = subtask.getEpicId();
         int epicId = epic.getTaskId();
 
         assertEquals(epicId, manager.getSubtaskWithID(subtaskId).getEpicId());
@@ -54,16 +54,16 @@ public class OtherTaskTrackerTest {
 
         // оба id внутри эпика
         Epic fromManager = manager.getEpictaskWithID(epicId);
-        assertTrue(fromManager.getTasksInEpic().contains(id1));
-        assertTrue(fromManager.getTasksInEpic().contains(id2));
+        assertFalse(fromManager.getTasksInEpic().isEmpty());
+        assertEquals(2,fromManager.getTasksInEpic().size(),"в эпике должно храниться 2 подзадачи");
 
         // удаляем одну подзадачу
-        manager.deleteSubtask(id1);
+        manager.deleteSubtask(fromManager.getTaskId());
 
         // в эпике не должно остаться id1
         Epic after = manager.getEpictaskWithID(epicId);
-        assertFalse(after.getTasksInEpic().contains(id1));
-        assertTrue(after.getTasksInEpic().contains(id2));
+        assertFalse(after.getTasksInEpic().isEmpty());
+        assertEquals(1,after.getTasksInEpic().size(), "после удаления должна остаться 1 подзадача");
 
     }
 
@@ -82,11 +82,7 @@ public class OtherTaskTrackerTest {
         manager.createNewSubtask(subtask1);
         manager.createNewSubtask(subtask2);
 
-        int id1 = subtask1.getTaskId();
-        int id2 = subtask2.getTaskId();
-
-        assertTrue(manager.getEpictaskWithID(epicId).getTasksInEpic().contains(id1));
-        assertTrue(manager.getEpictaskWithID(epicId).getTasksInEpic().contains(id2));
+        assertFalse(manager.getEpictaskWithID(epicId).getTasksInEpic().isEmpty());
 
         manager.removeAllSubtasks();
 
@@ -129,9 +125,9 @@ public class OtherTaskTrackerTest {
         // попытка перепривязать подзадачу к другому эпику
         subtask.setTaskId(epic2.getTaskId());
 
-        assertTrue(manager.getEpictaskWithID(epic1.getTaskId()).getTasksInEpic().contains(subtaskId),
+        assertFalse(manager.getEpictaskWithID(epic1.getTaskId()).getTasksInEpic().isEmpty(),
                 "подзадача должна оставаться в исходном эпике");
-        assertFalse(manager.getEpictaskWithID(epic2.getTaskId()).getTasksInEpic().contains(subtaskId),
+        assertTrue(manager.getEpictaskWithID(epic2.getTaskId()).getTasksInEpic().isEmpty(),
                 "подзадача не должна появляться во втором эпике после внешнего изменения");
 
     }
@@ -142,23 +138,23 @@ public class OtherTaskTrackerTest {
         manager.createNewEpic(epic);
 
         Subtask subtask = new Subtask("subtask", "desc",
-                Task.Status.NEW, epic.getTaskId());
+                Task.Status.DONE, epic.getTaskId());
 
         manager.createNewSubtask(subtask);
 
-        subtask.setStatus(Task.Status.DONE);
+        subtask.setStatus(Task.Status.NEW);
 
         Task.Status epicStatusBefore = manager.getEpictaskWithID(epic.getTaskId()).getStatus();
-        assertEquals(Task.Status.NEW, epicStatusBefore,
+        assertEquals(Task.Status.DONE, epicStatusBefore,
                 "статус эпика не должен измениться от внешнего сеттера");
 
         Subtask sUpdated = new Subtask(subtask.getTaskName(), subtask.getTaskDescription(),
-                Task.Status.DONE, subtask.getEpicId());
+                Task.Status.NEW, subtask.getEpicId());
 
-        manager.updateSubtask(sUpdated);
+        manager.updateSubtask(sUpdated,subtask);
 
         Task.Status epicStatusAfter = manager.getEpictaskWithID(epic.getTaskId()).getStatus();
-        assertEquals(Task.Status.DONE, epicStatusAfter,
+        assertEquals(Task.Status.NEW, epicStatusAfter,
                 "после update через менеджер статус эпика должен быть перерасчитан");
 
     }

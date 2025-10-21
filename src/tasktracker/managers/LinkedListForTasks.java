@@ -21,7 +21,7 @@ public class LinkedListForTasks {
 
     public ArrayList<Task> getTasks() {
         ArrayList<Task> res = new ArrayList<>();
-        for(Node<Task> cur = head; cur != null; cur = cur.next) {
+        for (Node<Task> cur = head; cur != null; cur = cur.next) {
             res.add(cur.data);
         }
         return res;
