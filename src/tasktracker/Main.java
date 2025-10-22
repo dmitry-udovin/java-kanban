@@ -1,7 +1,5 @@
 package tasktracker;
 
-import tasktracker.managers.InMemoryHistoryManager;
-import tasktracker.managers.InMemoryTaskManager;
 import tasktracker.managers.Managers;
 import tasktracker.managers.TaskManager;
 import tasktracker.tasks.Epic;
@@ -110,7 +108,6 @@ public class Main {
 
     private static void printAllTasks(TaskManager manager) {
         manager = Managers.getDefault();
-     //   InMemoryHistoryManager historyManager = manager.getHistoryManager();
         System.out.println("Задачи:");
         for (Task task : manager.getTaskList()) {
             System.out.println(task);

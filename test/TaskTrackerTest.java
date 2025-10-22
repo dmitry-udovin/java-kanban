@@ -9,7 +9,6 @@ import tasktracker.tasks.Subtask;
 import tasktracker.tasks.Task;
 import tasktracker.managers.TaskManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
