@@ -12,19 +12,19 @@ public class Main {
         System.out.println("Поехали!");
 
 
-        Task task1 = new Task("Задача 1","описание1", Task.Status.DONE,0);
-        Task task2 = new Task("Задача 2","описание2", Task.Status.NEW,1);
+        Task task1 = new Task("Задача 1", "описание1", Task.Status.DONE, 0);
+        Task task2 = new Task("Задача 2", "описание2", Task.Status.NEW, 1);
 
-        Epic epic1 = new Epic("Эпик 1","описание3", 2);
-        Epic epic2 = new Epic("Эпик 2","описание4", 3);
+        Epic epic1 = new Epic("Эпик 1", "описание3", 2);
+        Epic epic2 = new Epic("Эпик 2", "описание4", 3);
 
         TaskManager taskManager = Managers.getDefault();
 
-        Subtask firstSubtaskForEpic1 = new Subtask("подзадача 1","описание подзадачи",
-                Task.Status.DONE,2);
+        Subtask firstSubtaskForEpic1 = new Subtask("подзадача 1", "описание подзадачи",
+                Task.Status.DONE, 2);
 
-        Subtask secondSubtaskForEpic1 = new Subtask("подзадача 2","описание подзадачи",
-                Task.Status.IN_PROGRESS,2);
+        Subtask secondSubtaskForEpic1 = new Subtask("подзадача 2", "описание подзадачи",
+                Task.Status.IN_PROGRESS, 2);
 
         taskManager.createNewTask(task1);
         taskManager.createNewTask(task2);
@@ -36,11 +36,11 @@ public class Main {
 
         taskManager.getSubtaskList();
 
-        Subtask firstSubtaskForEpic2 = new Subtask("подзадача 1","описание подзадачи",
-                Task.Status.DONE,3);
+        Subtask firstSubtaskForEpic2 = new Subtask("подзадача 1", "описание подзадачи",
+                Task.Status.DONE, 3);
 
         Subtask secondSubtaskForEpic2 = new Subtask("подзадача 2", "описание подзадачи",
-                Task.Status.IN_PROGRESS,3);
+                Task.Status.IN_PROGRESS, 3);
 
         taskManager.createNewEpic(epic2);
 
@@ -102,7 +102,6 @@ public class Main {
         taskManager.removeAllSubtasks();
         taskManager.removeAllEpicTasks();
 
-        
 
     }
 
