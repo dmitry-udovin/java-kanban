@@ -54,6 +54,10 @@ public class Task {
         return status;
     }
 
+    public TaskTypes getType() {
+        return TaskTypes.TASK;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -89,5 +93,10 @@ public class Task {
         DONE
     }
 
+    public enum TaskTypes {
+        TASK,
+        EPIC,
+        SUBTASK
+    }
 
 }
