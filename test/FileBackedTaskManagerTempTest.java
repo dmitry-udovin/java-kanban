@@ -56,7 +56,7 @@ public class FileBackedTaskManagerTempTest {
         assertTrue(text.startsWith("id,type,name,status,description,epic"), "Должен быть заголовок CSV");
         assertTrue(text.contains(taskId + ",TASK,task,NEW,desc,"), "Task-строка должна присутствовать");
         assertTrue(text.contains(epicId + ",EPIC,epic"), "Epic-строка должна присутствовать");
-        assertTrue(text.contains(subId + ",SUBTASK,sub,DONE,s-desc," + epicId),
+        assertTrue(text.contains(subId + ",SUBTASK,subtask,NEW,s-desc," + epicId),
                 "Subtask-строка должна содержать epicId");
 
     }

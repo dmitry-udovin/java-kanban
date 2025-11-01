@@ -118,18 +118,17 @@ class TaskTrackerTest {
 
         // 1) Эпик
         Epic epic = new Epic("epic", "testEpic", 0);
-        taskManager.createNewEpic(epic);
-        int epicId = taskManager.getEpictaskWithID(1).getTaskId();
+        int epicId = taskManager.createNewEpic(epic);
+        Epic epicFromManager = taskManager.getEpictaskWithID(epicId);
+        //   int epicId = taskManager.getEpictaskWithID(0).getTaskId();
 
         // 2) Обычная задача
         Task task = new Task("task", "testTask", Task.Status.IN_PROGRESS, 2);
-        taskManager.createNewTask(task);
-        int taskId = task.getTaskId();
+        int taskId = taskManager.createNewTask(task);
 
         // 3) Подзадача
         Subtask subtask = new Subtask("subtask", "testSubtask", Task.Status.DONE, epicId);
-        taskManager.createNewSubtask(subtask);
-        int subtaskId = subtask.getTaskId();
+        int subtaskId = taskManager.createNewSubtask(subtask);
 
         // 4) проверки наличия
         assertFalse(taskManager.getTaskList().isEmpty());
@@ -137,14 +136,13 @@ class TaskTrackerTest {
         assertFalse(taskManager.getSubtaskList().isEmpty());
 
         // 5) проверки поиска по id
-        Task savedTask = taskManager.getTaskWithID(2);
+        Task savedTask = taskManager.getTaskWithID(taskId);
         assertNotNull(savedTask);
 
         assertEquals("task", savedTask.getTaskName());
         assertEquals("testTask", savedTask.getTaskDescription());
         assertEquals(Task.Status.IN_PROGRESS, savedTask.getStatus());
-        assertEquals(taskId,savedTask.getTaskId());
-
+        assertEquals(taskId, savedTask.getTaskId());
 
 
     }

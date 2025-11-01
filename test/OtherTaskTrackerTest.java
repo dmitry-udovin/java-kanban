@@ -20,13 +20,11 @@ public class OtherTaskTrackerTest {
     @Test
     void removedSubtaskShouldNotKeepEpicLink() {
         Epic epic = new Epic("epic", "desc", 1);
-        manager.createNewEpic(epic);
+        int epicId = manager.createNewEpic(epic);
 
         Subtask subtask = new Subtask("subtask", "desc",
-                Task.Status.NEW, manager.getEpictaskWithID(epic.getTaskId()).getTaskId());
-        manager.createNewSubtask(subtask);
-        int subtaskId = subtask.getEpicId();
-        int epicId = epic.getTaskId();
+                Task.Status.NEW, manager.getEpictaskWithID(epicId).getTaskId());
+        int subtaskId = manager.createNewSubtask(subtask);
 
         assertEquals(epicId, manager.getSubtaskWithID(subtaskId).getEpicId());
 
@@ -39,31 +37,27 @@ public class OtherTaskTrackerTest {
     @Test
     void epicShouldDropDeletedSubtaskId() {
         Epic epic = new Epic("epic", "desc", 1);
-        manager.createNewEpic(epic);
-        int epicId = epic.getTaskId();
+        int epicId = manager.createNewEpic(epic);
 
         Subtask subtask1 = new Subtask("s1", "desc",
                 Task.Status.NEW, epicId);
         Subtask subtask2 = new Subtask("s2", "desc",
                 Task.Status.IN_PROGRESS, epicId);
-        manager.createNewSubtask(subtask1);
-        manager.createNewSubtask(subtask2);
-
-        int id1 = subtask1.getTaskId();
-        int id2 = subtask2.getTaskId();
+        int subtaskId1 = manager.createNewSubtask(subtask1);
+        int subtaskId2 = manager.createNewSubtask(subtask2);
 
         // оба id внутри эпика
-        Epic fromManager = manager.getEpictaskWithID(epicId);
-        assertFalse(fromManager.getTasksInEpic().isEmpty());
-        assertEquals(2,fromManager.getTasksInEpic().size(),"в эпике должно храниться 2 подзадачи");
+        Epic epicFromManager = manager.getEpictaskWithID(epicId);
+        assertFalse(epicFromManager.getTasksInEpic().isEmpty());
+        assertEquals(2, epicFromManager.getTasksInEpic().size(), "в эпике должно храниться 2 подзадачи");
 
         // удаляем одну подзадачу
-        manager.deleteSubtask(fromManager.getTaskId());
+        manager.deleteSubtask(subtaskId1);
 
-        // в эпике не должно остаться id1
+        // в эпике не должно остаться subtaskId1
         Epic after = manager.getEpictaskWithID(epicId);
         assertFalse(after.getTasksInEpic().isEmpty());
-        assertEquals(1,after.getTasksInEpic().size(), "после удаления должна остаться 1 подзадача");
+        assertEquals(1, after.getTasksInEpic().size(), "после удаления должна остаться 1 подзадача");
 
     }
 
@@ -135,25 +129,26 @@ public class OtherTaskTrackerTest {
     @Test
     void externalSubtaskStatusChangeMustNotUpdateEpic() {
         Epic epic = new Epic("epic", "desc", 1);
-        manager.createNewEpic(epic);
+        int epicId = manager.createNewEpic(epic);
 
         Subtask subtask = new Subtask("subtask", "desc",
                 Task.Status.DONE, epic.getTaskId());
 
-        manager.createNewSubtask(subtask);
+        int subtaskId = manager.createNewSubtask(subtask);
 
         subtask.setStatus(Task.Status.NEW);
 
-        Task.Status epicStatusBefore = manager.getEpictaskWithID(epic.getTaskId()).getStatus();
+        Task.Status epicStatusBefore = manager.getEpictaskWithID(epicId).getStatus();
         assertEquals(Task.Status.DONE, epicStatusBefore,
                 "статус эпика не должен измениться от внешнего сеттера");
 
         Subtask sUpdated = new Subtask(subtask.getTaskName(), subtask.getTaskDescription(),
-                Task.Status.NEW, subtask.getEpicId());
+                Task.Status.NEW, epicId);
 
-        manager.updateSubtask(sUpdated,subtask);
+        sUpdated.setTaskId(subtaskId);
+        manager.updateSubtask(sUpdated);
 
-        Task.Status epicStatusAfter = manager.getEpictaskWithID(epic.getTaskId()).getStatus();
+        Task.Status epicStatusAfter = manager.getEpictaskWithID(epicId).getStatus();
         assertEquals(Task.Status.NEW, epicStatusAfter,
                 "после update через менеджер статус эпика должен быть перерасчитан");
 

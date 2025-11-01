@@ -259,25 +259,31 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateSubtask(Subtask updateSubtask, Subtask oldSubtask) {
+    public void updateSubtask(Subtask updateSubtask) {
 
-        if (updateSubtask == null || oldSubtask == null) return;
+        if (updateSubtask == null) return;
 
-        int id = oldSubtask.getTaskId();
-        Subtask stored = subtaskHashMap.get(id);
-        if (stored == null) return;
+        int id = updateSubtask.getTaskId();
+        if (id <= 0) {
+            throw new IllegalArgumentException("updateSubtask: у подзадачи должен быть валидный taskId");
+        }
 
-        stored.setTaskName(updateSubtask.getTaskName());
-        stored.setTaskDescription(updateSubtask.getTaskDescription());
-        stored.setStatus(updateSubtask.getStatus());
+        Subtask storedSubtask = subtaskHashMap.get(id);
+        if (storedSubtask == null) return;
 
-        Epic epic = epicHashMap.get(stored.getEpicId());
+        storedSubtask.setTaskName(updateSubtask.getTaskName());
+        storedSubtask.setTaskDescription(updateSubtask.getTaskDescription());
+        storedSubtask.setStatus(updateSubtask.getStatus());
+
+        subtaskHashMap.put(id, storedSubtask); // явное обновление
+
+        Epic epic = epicHashMap.get(storedSubtask.getEpicId());
 
         if (epic != null) {
             var list = epic.getTasksInEpic();
             for (int i = 0; i < list.size(); i++) {
                 if (list.get(i).getTaskId() == id) {
-                    list.set(i, stored);
+                    list.set(i, storedSubtask);
                     break;
                 }
             }

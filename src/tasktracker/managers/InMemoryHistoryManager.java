@@ -1,6 +1,8 @@
 package tasktracker.managers;
 
 import tasktracker.tasks.Task;
+import tasktracker.utilities.LinkedListForTasks;
+import tasktracker.utilities.Node;
 
 import java.util.ArrayList;
 import java.util.HashMap;

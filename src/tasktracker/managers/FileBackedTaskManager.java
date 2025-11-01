@@ -1,5 +1,6 @@
 package tasktracker.managers;
 
+import tasktracker.exceptions.ManagerSaveException;
 import tasktracker.tasks.Epic;
 import tasktracker.tasks.Subtask;
 import tasktracker.tasks.Task;
@@ -12,7 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
+public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private final Path path;
     private boolean confirmSave = false;
@@ -193,8 +194,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public void updateSubtask(Subtask updateSubtask, Subtask oldSubtask) {
-        super.updateSubtask(updateSubtask, oldSubtask);
+    public void updateSubtask(Subtask updateSubtask) {
+        super.updateSubtask(updateSubtask);
         save();
     }
 

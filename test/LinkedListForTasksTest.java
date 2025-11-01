@@ -1,7 +1,7 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tasktracker.managers.LinkedListForTasks;
-import tasktracker.managers.Node;
+import tasktracker.utilities.LinkedListForTasks;
+import tasktracker.utilities.Node;
 import tasktracker.tasks.Task;
 
 import java.util.ArrayList;
