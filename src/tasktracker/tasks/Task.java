@@ -1,24 +1,34 @@
 package tasktracker.tasks;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 public class Task {
 
     private int taskId = -1;
     private String taskName;
     private String taskDescription;
     private Status status;
+    private Duration duration;
+    private Optional<LocalDateTime> startTime;
 
 
-    public Task(String taskName, String taskDescription, Status status, int taskId) {
+    public Task(String taskName, String taskDescription, Status status, int taskId, Optional<LocalDateTime> startTime, Duration duration) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
         this.status = status;
         this.taskId = taskId;
+        this.startTime = startTime;
+        this.duration = duration;
     }
 
-    public Task(String taskName, String taskDescription, Status status) {
+    public Task(String taskName, String taskDescription, Status status, Optional<LocalDateTime> startTime, Duration duration) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
         this.status = status;
+        this.startTime = startTime;
+        this.duration = duration;
     }
 
     public void setTaskName(String name) {
@@ -45,6 +55,9 @@ public class Task {
         return taskId;
     }
 
+    public Optional<LocalDateTime> getEndTime() {
+        return startTime.map(startTime -> startTime.plus(duration));
+    }
 
     public void setStatus(Status status) {
         this.status = status;
@@ -56,6 +69,22 @@ public class Task {
 
     public TaskTypes getType() {
         return TaskTypes.TASK;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public Optional<LocalDateTime> getStartTime() {
+        return startTime;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration != null ? duration : Duration.ZERO;
+    }
+
+    public void setStartTime(Optional<LocalDateTime> startTime) {
+        this.startTime = startTime != null ? startTime : Optional.empty();
     }
 
     @Override

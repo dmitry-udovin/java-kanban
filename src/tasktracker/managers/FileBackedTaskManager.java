@@ -11,7 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
@@ -30,7 +33,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 Files.createDirectories(parent);
             }
             try (BufferedWriter bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-                bw.write("id,type,name,status,description,epic");
+                bw.write("id,type,name,status,description,epic,startTime,duration");
                 bw.newLine();
 
                 for (Task task : getTaskList()) {
@@ -66,7 +69,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         if (task.getType() == Task.TaskTypes.SUBTASK) {
             epic = String.valueOf(((Subtask) task).getEpicId());
         }
-        return String.join(",", id, type, name, status, desc, epic);
+
+        String start = task.getStartTime()
+                .map(LocalDateTime::toString)
+                .orElse("");
+
+        String durationMinutes = (task.getDuration() == null) ? "0" : String.valueOf(task.getDuration().toMinutes());
+
+        return String.join(",", id, type, name, status, desc, epic, start, durationMinutes);
     }
 
     public static FileBackedTaskManager loadFromFile(Path file) {
@@ -82,7 +92,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 return manager;
             }
 
-            String header = "id,type,name,status,description,epic";
+            String header = "id,type,name,status,description,epic,startTime,duration";
             if (!lines.get(0).trim().equalsIgnoreCase(header)) {
                 throw new ManagerSaveException("Некорректный заголовок CSV: " + lines.get(0));
             }
@@ -113,6 +123,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
             for (Epic epic : manager.epicHashMap.values()) {
                 manager.updateEpicStatus(epic);
+                manager.updateEpicTimeFields(epic);
             }
 
         } catch (IOException e) {
@@ -130,8 +141,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         String[] a = line.split(",", -1);
 
-        if (a.length < 6) {
-            throw new ManagerSaveException("CSV: ожидается 6 колонок, строка: " + line);
+        if (a.length < 8) {
+            throw new ManagerSaveException("CSV: ожидается 8 колонок, строка: " + line);
         }
 
         int id = Integer.parseInt(a[0]);
@@ -140,19 +151,31 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         Task.Status status = Task.Status.valueOf(a[3]);
         String desc = a[4];
         String epicCol = a[5];
+        String startCol = a[6];
+        String durationCol = a[7];
+
+        Optional<LocalDateTime> start = startCol.isEmpty()
+                ? Optional.empty()
+                : Optional.of(LocalDateTime.parse(startCol));
+
+        long minutes = durationCol.isEmpty() ? 0L : Long.parseLong(durationCol);
+        Duration duration = Duration.ofMinutes(minutes);
 
         switch (type) {
             case TASK -> {
-                return new Task(name, desc, status, id);
+                return new Task(name, desc, status, id, start, duration);
             }
             case EPIC -> {
                 Epic epic = new Epic(name, desc, id);
                 epic.setStatus(status);
+                epic.setStartTime(start);
+                epic.setDuration(duration);
+                // endTime будет выставлено через updateEpicTimeFields
                 return epic;
             }
             case SUBTASK -> {
                 int epicId = epicCol.isEmpty() ? 0 : Integer.parseInt(epicCol);
-                Subtask subtask = new Subtask(name, desc, status, epicId);
+                Subtask subtask = new Subtask(name, desc, status, epicId, start, duration);
                 subtask.setTaskId(id);
                 return subtask;
             }

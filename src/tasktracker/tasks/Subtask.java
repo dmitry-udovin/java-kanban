@@ -1,12 +1,16 @@
 package tasktracker.tasks;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 public class Subtask extends Task {
 
     private int epicId;
 
 
-    public Subtask(String subTaskName, String subtaskDescription, Status status, int epicId) {
-        super(subTaskName, subtaskDescription, status);
+    public Subtask(String subTaskName, String subtaskDescription, Status status, int epicId, Optional<LocalDateTime> startTime, Duration duration) {
+        super(subTaskName, subtaskDescription, status, startTime, duration);
         this.epicId = epicId;
 
     }
