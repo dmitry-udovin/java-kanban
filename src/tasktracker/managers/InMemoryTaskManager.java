@@ -27,7 +27,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected HashMap<Integer, Subtask> subtaskHashMap = new HashMap<>();
     protected HashMap<Integer, Epic> epicHashMap = new HashMap<>();
 
-    protected final Comparator<Task> PRIORITY_COMPARATOR = (task1, task2) -> {
+    protected final Comparator<Task> priorityComparator = (task1, task2) -> {
         var task1Time = task1.getStartTime().orElse(null);
         var task2Time = task2.getStartTime().orElse(null);
         if (task1Time == null && task2Time == null) return Integer.compare(task1.getTaskId(), task2.getTaskId());
@@ -37,7 +37,7 @@ public class InMemoryTaskManager implements TaskManager {
         return (cmp != 0) ? cmp : Integer.compare(task1.getTaskId(), task2.getTaskId());
     };
 
-    private final TreeSet<Task> prioritized = new TreeSet<>(PRIORITY_COMPARATOR);
+    private final TreeSet<Task> prioritized = new TreeSet<>(priorityComparator);
 
     private void priorityAdd(Task task) {
         if (task == null) return;
