@@ -125,12 +125,15 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     void shouldReturnTasksSortedByStartTimeAndNullsLast() {
         manager.createNewTask(makeTask("B", t(2025, 1, 1, 8, 0), mins(30)));
         manager.createNewTask(makeTask("A", t(2025, 1, 1, 9, 0), mins(30)));
-        manager.createNewTask(makeTask("C", Optional.empty(), mins(10)));
+
+        Task taskWithoutStartTime = makeTask("C", Optional.empty(), mins(10));
+
+        manager.createNewTask(taskWithoutStartTime);
 
         List<Task> prioritized = manager.getPrioritizedTasks();
         assertEquals("B", prioritized.get(0).getTaskName());
         assertEquals("A", prioritized.get(1).getTaskName());
-        assertEquals("C", prioritized.get(2).getTaskName());
+        assertFalse(prioritized.contains(taskWithoutStartTime));
     }
 
     @Test
