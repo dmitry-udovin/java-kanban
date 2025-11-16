@@ -485,8 +485,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (epicHashMap.containsKey(epicID)) {
             Epic epic = epicHashMap.remove(epicID);
 
-            epic.getTasksInEpic().forEach(subtask ->
-            {
+            epic.getTasksInEpic().forEach(subtask -> {
                 subtaskHashMap.remove(subtask.getTaskId());
                 priorityRemovedById(subtask.getTaskId());
                 historyManager.remove(subtask.getTaskId());
