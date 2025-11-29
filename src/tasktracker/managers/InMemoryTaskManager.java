@@ -248,49 +248,27 @@ public class InMemoryTaskManager implements TaskManager {
         if (storedTask == null) return null;
 
         historyManager.add(storedTask);
-        return new Task(storedTask.getTaskName(), storedTask.getTaskDescription(), storedTask.getStatus(),
-                storedTask.getTaskId(), storedTask.getStartTime(), storedTask.getDuration());
+        return storedTask;
     }
 
     @Override
     public Subtask getSubtaskWithID(int subtaskID) {
-
         Subtask storedSubtask = subtaskHashMap.get(subtaskID);
-
         if (storedSubtask == null) return null;
-
 
         historyManager.add(storedSubtask);
 
-        Subtask copy = new Subtask(storedSubtask.getTaskName(), storedSubtask.getTaskDescription(),
-                storedSubtask.getStatus(), storedSubtask.getEpicId(), storedSubtask.getStartTime(), storedSubtask.getDuration());
-
-        copy.setTaskId(storedSubtask.getTaskId());
-
-        return copy;
+        return storedSubtask;
     }
 
     @Override
     public Epic getEpictaskWithID(int epictaskID) {
-
         Epic storedEpic = epicHashMap.get(epictaskID);
         if (storedEpic == null) return null;
 
         historyManager.add(storedEpic);
 
-        Epic copy = new Epic(storedEpic.getTaskName(), storedEpic.getTaskDescription(), storedEpic.getTaskId());
-
-        copy.setStatus(storedEpic.getStatus());
-
-        copy.setStartTime(storedEpic.getStartTime());
-        copy.setDuration(storedEpic.getDuration());
-        copy.setEndTime(storedEpic.getEndTime());
-
-        for (Subtask s : storedEpic.getTasksInEpic()) {
-            copy.getTasksInEpic().add(s);
-        }
-
-        return copy;
+        return storedEpic;
     }
 
     // СОЗДАНИЕ НОВОЙ ЗАДАЧИ:
