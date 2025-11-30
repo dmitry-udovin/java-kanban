@@ -11,9 +11,6 @@ import java.util.List;
 
 public class PriorityHandler extends AbstractHandler implements HttpHandler {
 
-    private TaskManager taskManager;
-    private Gson gson;
-
     public PriorityHandler(TaskManager taskManager, Gson gson) {
         this.taskManager = taskManager;
         this.gson = gson;
@@ -31,23 +28,15 @@ public class PriorityHandler extends AbstractHandler implements HttpHandler {
             if (split.length == 2) {
 
                 try {
-
                     if (split[1].equals("prioritized")) {
                         List<Task> tasks = taskManager.getPrioritizedTasks();
                         String allTasksJson = gson.toJson(tasks);
                         sendText(exchange, allTasksJson);
-
                     }
-
-
                 } catch (Exception exp) {
                     sendResponse(500, "Ошибка сервера: " + exp.getMessage(), exchange);
                 }
-
             }
-
         }
-
     }
-
 }

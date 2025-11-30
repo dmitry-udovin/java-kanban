@@ -7,14 +7,10 @@ import tasktracker.managers.TaskManager;
 import tasktracker.tasks.Epic;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class EpicHandler extends AbstractHandler implements HttpHandler {
-
-    private TaskManager taskManager;
-    private Gson gson;
 
     public EpicHandler(TaskManager taskManager, Gson gson) {
         this.taskManager = taskManager;
@@ -26,104 +22,80 @@ public class EpicHandler extends AbstractHandler implements HttpHandler {
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
 
-        switch (method) {
-            case "GET": {
-                String[] split = path.split("/");
+        try {
+            switch (method) {
+                case "GET": {
+                    String[] split = path.split("/");
 
-                if (split.length == 4) {
-                    try {
-                        int taskId = Integer.parseInt(split[2]);
-                        Epic epic = taskManager.getEpictaskWithID(taskId);
-
+                    if (split.length == 4) {
+                        int epicId = Integer.parseInt(split[2]);
+                        Epic epic = taskManager.getEpictaskWithID(epicId);
                         if (epic == null) {
-                            sendNotFound(exchange, "Ошибка: задача с ID " + taskId + " не найдена");
+                            sendNotFound(exchange, "Ошибка: эпик с ID " + epicId + " не найден");
                         } else {
-                            String epicSubtasksJson = gson.toJson(epic.getTasksInEpic());
-                            sendText(exchange, epicSubtasksJson);
+                            sendText(exchange, gson.toJson(epic.getTasksInEpic()));
                         }
-
-                    } catch (NumberFormatException exp) {
-                        sendResponse(400, "Ошибка: неверный формат ID. Ожидается число.", exchange);
-                    } catch (Exception exp) {
-                        sendResponse(500, "Ошибка сервера: " + exp.getMessage(), exchange);
-                    }
-                }
-
-                if (split.length == 3) {
-
-                    try {
-                        int taskId = Integer.parseInt(split[2]);
-                        Epic epic = taskManager.getEpictaskWithID(taskId);
-
-                        if (epic == null) {
-                            sendNotFound(exchange, "Ошибка: задача с ID " + taskId + " не найдена");
-                        } else {
-                            String epicJson = gson.toJson(epic);
-                            sendText(exchange, epicJson);
-                        }
-
-                    } catch (NumberFormatException exp) {
-                        sendResponse(400, "Ошибка: неверный формат ID. Ожидается число.", exchange);
-                    } catch (Exception exp) {
-                        sendResponse(500, "Ошибка сервера: " + exp.getMessage(), exchange);
+                        break;
                     }
 
-                }
-
-                if (split.length == 2) {
-                    List<Epic> allEpics = taskManager.getEpicList();
-                    String allEpicsJson = gson.toJson(allEpics);
-                    sendText(exchange, allEpicsJson);
-                }
-                break;
-            }
-
-            case "POST": {
-                String[] split = path.split("/");
-
-                // заглянуть в тело запроса, десериализовать задачу в java-обьект
-                InputStream requestBody = exchange.getRequestBody();
-                byte[] bytes = requestBody.readAllBytes();
-
-                String requestBodyString = new String(bytes, StandardCharsets.UTF_8);
-
-                Epic epic = gson.fromJson(requestBodyString, Epic.class);
-
-                if (epic != null) {
+                    if (split.length == 3) {
+                        int epicId = Integer.parseInt(split[2]);
+                        Epic epic = taskManager.getEpictaskWithID(epicId);
+                        if (epic == null) {
+                            sendNotFound(exchange, "Ошибка: эпик с ID " + epicId + " не найден");
+                        } else {
+                            sendText(exchange, gson.toJson(epic));
+                        }
+                        break;
+                    }
 
                     if (split.length == 2) {
-                        taskManager.createNewEpic(epic);
-                        sendResponse(201, "Успешно создан новый эпик под " + epic.getTaskId() + " номером", exchange);
+                        List<Epic> all = taskManager.getEpicList();
+                        sendText(exchange, gson.toJson(all));
+                    }
+                    break;
+                }
+
+                case "POST": {
+                    String[] split = path.split("/");
+                    String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                    Epic epic = gson.fromJson(body, Epic.class);
+
+                    if (epic == null) {
+                        sendResponse(400, "Ошибка: тело запроса пустое или некорректное", exchange);
+                        break;
                     }
 
+                    if (split.length == 2) {
+                        int id = taskManager.createNewEpic(epic);
+                        sendResponse(201, "Успешно создан новый эпик под " + id + " номером", exchange);
+                        break;
+                    }
+
+                    sendResponse(400, "Обновление эпиков не поддерживается", exchange);
+                    break;
                 }
-                break;
-            }
 
-            case "DELETE": {
-                String[] split = path.split("/");
-
-                if (split.length == 3) {
-                    try {
-                        int taskId = Integer.parseInt(split[2]);
-                        if (taskManager.getEpictaskWithID(taskId) != null) {
-                            taskManager.deleteEpic(taskId);
-                            sendText(exchange, "Успешно удален эпик под номером: " + taskId);
+                case "DELETE": {
+                    String[] split = path.split("/");
+                    if (split.length == 3) {
+                        int epicId = Integer.parseInt(split[2]);
+                        if (taskManager.getEpictaskWithID(epicId) != null) {
+                            taskManager.deleteEpic(epicId);
+                            sendText(exchange, "Успешно удален эпик под номером: " + epicId);
                         } else {
                             sendNotFound(exchange, "Ошибка: не существует эпика по указанному номеру");
                         }
-                    } catch (NumberFormatException exp) {
-                        sendResponse(400, "Ошибка: неверный формат ID. Ожидается число.", exchange);
-                    } catch (Exception exp) {
-                        sendResponse(500, "Ошибка сервера: " + exp.getMessage(), exchange);
+                    } else {
+                        sendNotFound(exchange, "Ошибка: укажите номер эпика для удаления.");
                     }
-
+                    break;
                 }
-
             }
-
-
+        } catch (NumberFormatException e) {
+            sendResponse(400, "Ошибка: неверный формат ID. Ожидается число.", exchange);
+        } catch (Exception e) {
+            sendResponse(500, "Ошибка сервера: " + e.getMessage(), exchange);
         }
     }
-
 }

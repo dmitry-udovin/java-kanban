@@ -18,9 +18,7 @@ import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
 
-
     private HistoryManager historyManager = Managers.getDefaultHistory();
-
 
     protected static int taskID = 1;
     protected HashMap<Integer, Task> taskHashMap = new HashMap<>();
@@ -167,7 +165,6 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-
     // ПОЛУЧЕНИЕ СПИСКОВ ЗАДАЧ:
 
     @Override
@@ -201,8 +198,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeAllSubtasks() {
-
-
         subtaskHashMap.keySet().forEach(id -> {
             priorityRemovedById(id);
             historyManager.remove(id);
@@ -219,8 +214,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeAllEpicTasks() {
-
-
         subtaskHashMap.keySet().forEach(id -> {
             historyManager.remove(id);
             priorityRemovedById(id);
@@ -336,7 +329,6 @@ public class InMemoryTaskManager implements TaskManager {
         epic.setTaskId(newEpicId);
         Epic copyOfEpic = new Epic(epic.getTaskName(), epic.getTaskDescription(), newEpicId);
 
-
         epicHashMap.put(newEpicId, copyOfEpic);
         System.out.println("Успешно добавлен новый эпик под номером " + newEpicId);
         return newEpicId;
@@ -411,9 +403,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateEpic(Epic epic) {
-
         epicHashMap.put(epic.getTaskId(), epic);
-
     }
 
     // УДАЛЕНИЕ ЗАДАЧИ ПО ИДЕНТИФИКАТОРУ:
@@ -429,16 +419,12 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             System.out.println("Нет задачи по указанному ID.");
         }
-
-
     }
 
     @Override
     public void deleteSubtask(int subtaskID) {
 
-
         if (subtaskHashMap.containsKey(subtaskID)) {
-
             Subtask subtask = subtaskHashMap.get(subtaskID);
             Epic epic = epicHashMap.get(subtask.getEpicId());
             priorityRemovedById(subtaskID);
@@ -447,15 +433,11 @@ public class InMemoryTaskManager implements TaskManager {
                 updateEpicStatus(epic);
                 updateEpicTimeFields(epic);
             }
-
-
             subtaskHashMap.remove(subtaskID);
             historyManager.remove(subtaskID);
-
         } else {
             System.out.println("Подзадача с указанным ID не соответствует ни одному из эпиков.");
         }
-
     }
 
     @Override
@@ -494,7 +476,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateEpicStatus(Epic epic) {
-
         List<Subtask> subtasks = epic.getTasksInEpic();
         if (subtasks == null || subtasks.isEmpty()) {
             epic.setStatus(Task.Status.NEW);

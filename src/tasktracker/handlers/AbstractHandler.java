@@ -1,10 +1,15 @@
 package tasktracker.handlers;
 
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
+import tasktracker.managers.TaskManager;
 
 import java.io.OutputStream;
 
 public abstract class AbstractHandler {
+
+    protected TaskManager taskManager;
+    protected Gson gson;
 
     protected void sendResponse(Integer code, String responseBody, HttpExchange exchange) {
 
@@ -12,7 +17,6 @@ public abstract class AbstractHandler {
             byte[] bytes = responseBody.getBytes();
 
             exchange.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
-
             exchange.sendResponseHeaders(code, bytes.length);
 
             try (OutputStream os = exchange.getResponseBody()) {

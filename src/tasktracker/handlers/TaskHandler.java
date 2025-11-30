@@ -3,7 +3,7 @@ package tasktracker.handlers;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import tasktracker.managers.InMemoryTaskManager;
+import tasktracker.exceptions.TaskTimeException;
 import tasktracker.managers.TaskManager;
 import tasktracker.tasks.Task;
 
@@ -13,9 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class TaskHandler extends AbstractHandler implements HttpHandler {
-
-    private TaskManager taskManager;
-    private Gson gson;
 
     public TaskHandler(TaskManager taskManager, Gson gson) {
         this.taskManager = taskManager;
@@ -27,13 +24,14 @@ public class TaskHandler extends AbstractHandler implements HttpHandler {
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
 
-        switch (method) {
-            case "GET": {
-                String[] split = path.split("/");
+        try {
+            switch (method) {
 
-                if (split.length == 3) {
+                case "GET": {
+                    String[] split = path.split("/");
 
-                    try {
+                    if (split.length == 3) {
+
                         int taskId = Integer.parseInt(split[2]);
                         Task task = taskManager.getTaskWithID(taskId);
 
@@ -43,41 +41,40 @@ public class TaskHandler extends AbstractHandler implements HttpHandler {
                             String taskJson = gson.toJson(task);
                             sendText(exchange, taskJson);
                         }
-
-                    } catch (NumberFormatException exp) {
-                        sendResponse(400, "Ошибка: неверный формат ID. Ожидается число.", exchange);
-                    } catch (Exception exp) {
-                        sendResponse(500, "Ошибка сервера: " + exp.getMessage(), exchange);
                     }
 
+                    if (split.length == 2) {
+                        List<Task> allTasks = taskManager.getTaskList();
+                        String allTasksJson = gson.toJson(allTasks);
+                        sendText(exchange, allTasksJson);
+                    }
+                    break;
                 }
 
-                if (split.length == 2) {
-                    List<Task> allTasks = taskManager.getTaskList();
-                    String allTasksJson = gson.toJson(allTasks);
-                    sendText(exchange, allTasksJson);
-                }
-                break;
-            }
+                case "POST": {
+                    String[] split = path.split("/");
 
-            case "POST": {
-                String[] split = path.split("/");
+                    // заглянуть в тело запроса, десериализовать задачу в java-обьект
+                    InputStream requestBody = exchange.getRequestBody();
+                    byte[] bytes = requestBody.readAllBytes();
 
-                // заглянуть в тело запроса, десериализовать задачу в java-обьект
-                InputStream requestBody = exchange.getRequestBody();
-                byte[] bytes = requestBody.readAllBytes();
+                    String requestBodyString = new String(bytes, StandardCharsets.UTF_8);
 
-                String requestBodyString = new String(bytes, StandardCharsets.UTF_8);
+                    Task task = gson.fromJson(requestBodyString, Task.class);
 
-                Task task = gson.fromJson(requestBodyString, Task.class);
-
-                InMemoryTaskManager inMemoryManager = (InMemoryTaskManager) taskManager;
-
-                if (task != null && !inMemoryManager.overlapsAny(task)) {
+                    if (task == null) {
+                        sendResponse(400, "Ошибка: тело запроса пустое или некорректное", exchange);
+                        break;
+                    }
 
                     if (split.length == 2) {
-                        taskManager.createNewTask(task);
-                        sendResponse(201, "Добавлена новая задача под " + task.getTaskId() + " номером", exchange);
+                        try {
+                            taskManager.createNewTask(task);
+                            sendResponse(201, "Добавлена новая задача под " + task.getTaskId() + " номером", exchange);
+                        } catch (TaskTimeException exp) {
+                            sendHasInteractions(exchange, "Ошибка: время задачи пересекается с существующими.");
+                        }
+                        break;
                     }
 
                     if (split.length == 3) {
@@ -85,33 +82,27 @@ public class TaskHandler extends AbstractHandler implements HttpHandler {
                             int taskId = Integer.parseInt(split[2]);
                             Task currentTask = taskManager.getTaskWithID(taskId);
 
-                            currentTask.setTaskName(task.getTaskName());
-                            currentTask.setTaskDescription(task.getTaskDescription());
-                            currentTask.setStatus(task.getStatus());
-                            currentTask.setStartTime(task.getStartTime());
-                            currentTask.setDuration(task.getDuration());
+                            if (currentTask == null) {
+                                sendNotFound(exchange, "Ошибка: задача с ID " + taskId + " не найдена");
+                                break;
+                            }
 
+                            task.setTaskId(taskId);
+                            taskManager.updateTask(task);
                             sendResponse(201, "Вы успешно обновили задачу под " + taskId + " номером", exchange);
-
                         } catch (NumberFormatException exp) {
                             sendResponse(400, "Ошибка: неверный формат ID. Ожидается число.", exchange);
-                        } catch (Exception exp) {
-                            sendResponse(500, "Ошибка сервера: " + exp.getMessage(), exchange);
+                        } catch (TaskTimeException exp) {
+                            sendHasInteractions(exchange, "Ошибка: время задачи пересекается с существующими.");
                         }
                     }
-                } else {
-                    if (inMemoryManager.overlapsAny(task)) {
-                        sendHasInteractions(exchange, "Ошибка: время задачи пересекается с существующими.");
-                    }
+                    break;
                 }
-                break;
-            }
 
-            case "DELETE": {
-                String[] split = path.split("/");
+                case "DELETE": {
+                    String[] split = path.split("/");
 
-                if (split.length == 3) {
-                    try {
+                    if (split.length == 3) {
                         int taskId = Integer.parseInt(split[2]);
                         if (taskManager.getTaskWithID(taskId) != null) {
                             taskManager.deleteTask(taskId);
@@ -119,21 +110,16 @@ public class TaskHandler extends AbstractHandler implements HttpHandler {
                         } else {
                             sendNotFound(exchange, "Ошибка: нет задачи по указанному номеру");
                         }
-                    } catch (NumberFormatException exp) {
-                        sendResponse(400, "Ошибка: неверный формат ID. Ожидается число.", exchange);
-                    } catch (Exception exp) {
-                        sendResponse(500, "Ошибка сервера: " + exp.getMessage(), exchange);
+                    } else {
+                        sendNotFound(exchange, "Ошибка: укажите номер задачи для удаления.");
                     }
-
-                } else {
-                    sendNotFound(exchange, "Ошибка: укажите номер задачи для удаления.");
+                    break;
                 }
-
             }
-
-
+        } catch (NumberFormatException exp) {
+            sendResponse(400, "Ошибка: неверный формат ID. Ожидается число.", exchange);
+        } catch (Exception exp) {
+            sendResponse(500, "Ошибка сервера: " + exp.getMessage(), exchange);
         }
-
     }
-
 }

@@ -3,19 +3,15 @@ package tasktracker.handlers;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import tasktracker.managers.InMemoryTaskManager;
+import tasktracker.exceptions.TaskTimeException;
 import tasktracker.managers.TaskManager;
 import tasktracker.tasks.Subtask;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class SubtaskHandler extends AbstractHandler implements HttpHandler {
-
-    private TaskManager taskManager;
-    private Gson gson;
 
     public SubtaskHandler(TaskManager taskManager, Gson gson) {
         this.taskManager = taskManager;
@@ -27,112 +23,91 @@ public class SubtaskHandler extends AbstractHandler implements HttpHandler {
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
 
-        switch (method) {
-            case "GET": {
-                String[] split = path.split("/");
+        try {
+            switch (method) {
+                case "GET": {
+                    String[] split = path.split("/");
 
-                if (split.length == 3) {
-
-                    try {
-                        int taskId = Integer.parseInt(split[2]);
-                        Subtask subtask = taskManager.getSubtaskWithID(taskId);
+                    if (split.length == 3) {
+                        int subId = Integer.parseInt(split[2]);
+                        Subtask subtask = taskManager.getSubtaskWithID(subId);
 
                         if (subtask == null) {
-                            sendNotFound(exchange, "Ошибка: задача с ID " + taskId + " не найдена");
+                            sendNotFound(exchange, "Ошибка: подзадача с ID " + subId + " не найдена");
                         } else {
-                            String subtaskJson = gson.toJson(subtask);
-                            sendText(exchange, subtaskJson);
+                            sendText(exchange, gson.toJson(subtask));
                         }
+                    } else if (split.length == 2) {
+                        List<Subtask> all = taskManager.getSubtaskList();
+                        sendText(exchange, gson.toJson(all));
+                    }
+                    break;
+                }
 
-                    } catch (NumberFormatException exp) {
-                        sendResponse(400, "Ошибка: неверный формат ID. Ожидается число.", exchange);
-                    } catch (Exception exp) {
-                        sendResponse(500, "Ошибка сервера: " + exp.getMessage(), exchange);
+                case "POST": {
+                    String[] split = path.split("/");
+                    String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                    Subtask subtask = gson.fromJson(body, Subtask.class);
+
+                    if (subtask == null) {
+                        sendResponse(400, "Ошибка: тело запроса пустое или некорректное", exchange);
+                        break;
                     }
 
-                }
-
-                if (split.length == 2) {
-                    List<Subtask> allTasks = taskManager.getSubtaskList();
-                    String allTasksJson = gson.toJson(allTasks);
-                    sendText(exchange, allTasksJson);
-                }
-                break;
-            }
-
-            case "POST": {
-                String[] split = path.split("/");
-
-                // заглянуть в тело запроса, десериализовать задачу в java-обьект
-                InputStream requestBody = exchange.getRequestBody();
-                byte[] bytes = requestBody.readAllBytes();
-
-                String requestBodyString = new String(bytes, StandardCharsets.UTF_8);
-
-                Subtask subtask = gson.fromJson(requestBodyString, Subtask.class);
-
-                InMemoryTaskManager inMemoryManager = (InMemoryTaskManager) taskManager;
-
-                if (subtask != null && !inMemoryManager.overlapsAny(subtask)) {
-
                     if (split.length == 2) {
-                        int epicId = taskManager.createNewSubtask(subtask);
-                        sendResponse(201, "Добавлена новая подзадача под " + epicId + " номером. Относится к эпику: #" + subtask.getEpicId(), exchange);
+                        try {
+                            int id = taskManager.createNewSubtask(subtask);
+                            sendResponse(201, "Добавлена новая подзадача под номером " + id
+                                    + ". Относится к эпику #" + subtask.getEpicId(), exchange);
+                        } catch (TaskTimeException e) {
+                            sendHasInteractions(exchange, "Ошибка: время подзадачи пересекается с существующими.");
+                        }
+                        break;
                     }
 
                     if (split.length == 3) {
                         try {
-                            int taskId = Integer.parseInt(split[2]);
-                            Subtask currentSubtask = taskManager.getSubtaskWithID(taskId);
+                            int subId = Integer.parseInt(split[2]);
+                            Subtask current = taskManager.getSubtaskWithID(subId);
 
-                            currentSubtask.setTaskName(subtask.getTaskName());
-                            currentSubtask.setTaskDescription(subtask.getTaskDescription());
-                            currentSubtask.setStatus(subtask.getStatus());
-                            currentSubtask.setStartTime(subtask.getStartTime());
-                            currentSubtask.setDuration(subtask.getDuration());
+                            if (current == null) {
+                                sendNotFound(exchange, "Ошибка: подзадача с ID " + subId + " не найдена");
+                                break;
+                            }
 
-                            sendResponse(201, "Вы успешно обновили подзадачу под " + taskId + " номером", exchange);
-
-                        } catch (NumberFormatException exp) {
+                            subtask.setTaskId(subId);
+                            taskManager.updateSubtask(subtask);
+                            sendResponse(201, "Вы успешно обновили подзадачу #" + subId, exchange);
+                        } catch (NumberFormatException e) {
                             sendResponse(400, "Ошибка: неверный формат ID. Ожидается число.", exchange);
-                        } catch (Exception exp) {
-                            sendResponse(500, "Ошибка сервера: " + exp.getMessage(), exchange);
+                        } catch (TaskTimeException e) {
+                            sendHasInteractions(exchange, "Ошибка: время подзадачи пересекается с существующими.");
                         }
                     }
-                } else {
-                    if (inMemoryManager.overlapsAny(subtask)) {
-                        sendHasInteractions(exchange, "Ошибка: время задачи пересекается с существующими.");
-                    }
+                    break;
                 }
-                break;
-            }
 
-            case "DELETE": {
-                String[] split = path.split("/");
+                case "DELETE": {
+                    String[] split = path.split("/");
 
-                if (split.length == 3) {
-                    try {
-                        int taskId = Integer.parseInt(split[2]);
-                        if (taskManager.getSubtaskWithID(taskId) != null) {
-                            taskManager.deleteSubtask(taskId);
-                            sendText(exchange, "Успешно удалена подзадача под номером: " + taskId);
+                    if (split.length == 3) {
+                        int subId = Integer.parseInt(split[2]);
+                        if (taskManager.getSubtaskWithID(subId) != null) {
+                            taskManager.deleteSubtask(subId);
+                            sendText(exchange, "Успешно удалена подзадача под номером: " + subId);
                         } else {
                             sendNotFound(exchange, "Ошибка: нет подзадачи по указанному номеру");
                         }
-                    } catch (NumberFormatException exp) {
-                        sendResponse(400, "Ошибка: неверный формат ID. Ожидается число.", exchange);
-                    } catch (Exception exp) {
-                        sendResponse(500, "Ошибка сервера: " + exp.getMessage(), exchange);
+                    } else {
+                        sendNotFound(exchange, "Ошибка: укажите номер подзадачи для удаления.");
                     }
-
-                } else {
-                    sendNotFound(exchange, "Ошибка: укажите номер подзадачи для удаления.");
+                    break;
                 }
-
             }
-
-
+        } catch (NumberFormatException e) {
+            sendResponse(400, "Ошибка: неверный формат ID. Ожидается число.", exchange);
+        } catch (Exception e) {
+            sendResponse(500, "Ошибка сервера: " + e.getMessage(), exchange);
         }
     }
-
 }
