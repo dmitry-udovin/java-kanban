@@ -4,8 +4,9 @@ import tasktracker.tasks.Epic;
 import tasktracker.tasks.Subtask;
 import tasktracker.tasks.Task;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface TaskManager {
 
@@ -35,7 +36,7 @@ public interface TaskManager {
 
     void updateTask(Task task);
 
-    void updateSubtask(Subtask subtask);
+    void updateSubtask(Subtask updateSubtask);
 
     void updateEpic(Epic epic);
 
@@ -49,6 +50,10 @@ public interface TaskManager {
 
     void updateEpicStatus(Epic epic);
 
+    Optional<LocalDateTime> getEndTimeForEpic(Epic epic);
+
     List<Task> getHistory();
+
+    List<Task> getPrioritizedTasks();
 
 }

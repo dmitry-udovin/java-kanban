@@ -1,40 +1,50 @@
 package tasktracker.managers;
 
-import tasktracker.tasks.Epic;
-import tasktracker.tasks.Subtask;
 import tasktracker.tasks.Task;
+import tasktracker.utilities.LinkedListForTasks;
+import tasktracker.utilities.Node;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    private ArrayList<Task> taskHistory;
+    private Map<Integer, Node<Task>> taskHistoryMap;
+
+    private LinkedListForTasks listOfTasks;
 
     public InMemoryHistoryManager() {
-        this.taskHistory = new ArrayList<>();
+        this.taskHistoryMap = new HashMap<>();
+        this.listOfTasks = new LinkedListForTasks();
     }
 
     @Override
     public void add(Task task) {
-        if (taskHistory.size() == 10) {
-            taskHistory.remove(0);
+
+        if (task == null) return;
+
+        int id = task.getTaskId();
+
+        Node<Task> oldNode = taskHistoryMap.remove(id);
+        if (oldNode != null) {
+            listOfTasks.removeNode(oldNode);
         }
-        Task copy;
-        if (task instanceof Task) {
-            copy = new Task(task.getTaskName(), task.getTaskDescription(), task.getStatus(), task.getTaskId());
-            taskHistory.add(copy);
-        } else if (task instanceof Subtask) {
-            copy = new Subtask(task.getTaskName(), task.getTaskDescription(), task.getStatus(), task.getTaskId());
-            taskHistory.add(copy);
-        } else if (task instanceof Epic) {
-            copy = new Epic(task.getTaskName(), task.getTaskDescription(), task.getTaskId());
-            taskHistory.add(copy);
-        }
+
+        Node<Task> newNode = listOfTasks.linkLast(task);
+        taskHistoryMap.put(id, newNode);
     }
 
-
+    @Override
     public ArrayList<Task> getHistory() {
-        return taskHistory;
+        return listOfTasks.getTasks();
     }
+
+    @Override
+    public void remove(int taskId) {
+        Node<Task> node = taskHistoryMap.remove(taskId);
+        if (node != null) listOfTasks.removeNode(node);
+    }
+
 
 }
