@@ -1,3 +1,3 @@
 # java-kanban
 
-описание: трекер задач
+simple task-tracker with tests coverage
